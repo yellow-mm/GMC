@@ -1,9 +1,795 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
-  <title>Hello World</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Project Tracker Dashboard</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7fb;
+      margin: 0;
+      padding: 20px;
+      color: #1f2937;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: auto;
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 18px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+    }
+
+    .header {
+      background: linear-gradient(135deg, #c7d2fe, #bfdbfe);
+      border-radius: 18px;
+      padding: 22px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .header-title h1 {
+      margin: 0;
+      font-size: 28px;
+      color: #1e3a8a;
+    }
+
+    .header-title p {
+      margin: 6px 0 0 0;
+      color: #475569;
+      font-size: 14px;
+    }
+
+    .add-btn {
+      text-decoration: none;
+      background: #2563eb;
+      color: #ffffff;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 14px;
+      display: inline-block;
+    }
+
+    .add-btn:hover {
+      opacity: 0.9;
+    }
+
+    .section {
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #1e40af;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #dbeafe;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+    }
+
+    .dashboard-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 16px;
+      cursor: pointer;
+      text-align: center;
+      background: #ffffff;
+      transition: 0.15s ease;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+    }
+
+    .dashboard-card.active {
+      border-color: #2563eb;
+      background: #eff6ff;
+    }
+
+    .card-all {
+      background: #f8fafc;
+    }
+
+    .card-not-start {
+      background: #f3f4f6;
+    }
+
+    .card-inprogress {
+      background: #dbeafe;
+    }
+
+    .card-onhold {
+      background: #fef3c7;
+    }
+
+    .card-completed {
+      background: #dcfce7;
+    }
+
+    .dashboard-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #475569;
+      margin-bottom: 8px;
+    }
+
+    .dashboard-number {
+      font-size: 30px;
+      font-weight: bold;
+      color: #1e40af;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 1050px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      font-size: 14px;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eff6ff;
+      color: #1e3a8a;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:nth-child(even) td {
+      background: #f9fafb;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .status-not-start {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .status-inprogress {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .status-onhold {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-completed {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .comment-list {
+      max-width: 360px;
+    }
+
+    .comment-item {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .comment-time {
+      display: block;
+      color: #64748b;
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .comment-edited {
+      display: block;
+      color: #0f766e;
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    .comment-action-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 60px;
+      padding: 9px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-family: Arial, sans-serif;
+      font-size: 13px;
+      resize: vertical;
+    }
+
+    button,
+    .small-link {
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #ffffff;
+      text-decoration: none;
+      display: inline-block;
+      margin-bottom: 6px;
+    }
+
+    .edit-btn {
+      background: #f59e0b;
+    }
+
+    .delete-btn {
+      background: #ef4444;
+    }
+
+    .comment-btn {
+      background: #22c55e;
+      margin-top: 8px;
+    }
+
+    .comment-edit-btn {
+      background: #f59e0b;
+      padding: 6px 10px;
+      font-size: 11px;
+    }
+
+    .comment-delete-btn {
+      background: #ef4444;
+      padding: 6px 10px;
+      font-size: 11px;
+    }
+
+    button:hover,
+    .small-link:hover {
+      opacity: 0.9;
+    }
+
+    .empty-message {
+      text-align: center;
+      color: #64748b;
+      padding: 20px;
+    }
+
+    .status-message {
+      margin-top: 12px;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 12px;
+      }
+
+      .container {
+        padding: 16px;
+        border-radius: 14px;
+      }
+
+      .header {
+        padding: 18px;
+      }
+
+      .header-title h1 {
+        font-size: 22px;
+      }
+
+      .add-btn {
+        width: 100%;
+        text-align: center;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        min-width: 1000px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <h1>Hello, World!</h1>
+  <div class="container">
+    <div class="header">
+      <div class="header-title">
+        <h1>Project Tracker</h1>
+        <p>Dashboard สำหรับติดตาม Project และงานค้าง</p>
+      </div>
+
+      <a class="add-btn" href="add.html">+ Add Project</a>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Dashboard</div>
+
+      <div class="dashboard-grid">
+        <div class="dashboard-card card-all active" onclick="setFilter('All')" id="card-All">
+          <div class="dashboard-title">All</div>
+          <div class="dashboard-number" id="count-All">0</div>
+        </div>
+
+        <div class="dashboard-card card-not-start" onclick="setFilter('Not Start')" id="card-Not Start">
+          <div class="dashboard-title">Not Start</div>
+          <div class="dashboard-number" id="count-Not Start">0</div>
+        </div>
+
+        <div class="dashboard-card card-inprogress" onclick="setFilter('Inprogress')" id="card-Inprogress">
+          <div class="dashboard-title">Inprogress</div>
+          <div class="dashboard-number" id="count-Inprogress">0</div>
+        </div>
+
+        <div class="dashboard-card card-onhold" onclick="setFilter('Onhold')" id="card-Onhold">
+          <div class="dashboard-title">Onhold</div>
+          <div class="dashboard-number" id="count-Onhold">0</div>
+        </div>
+
+        <div class="dashboard-card card-completed" onclick="setFilter('Completed')" id="card-Completed">
+          <div class="dashboard-title">Completed</div>
+          <div class="dashboard-number" id="count-Completed">0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Project List</div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Engineer Name</th>
+              <th>Customer</th>
+              <th>Project Name</th>
+              <th>Status</th>
+              <th>Comments</th>
+              <th>Updated Time</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody id="projectTable">
+            <tr>
+              <td colspan="8" class="empty-message">Loading data...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="statusMessage" class="status-message"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db, collectionName } from "./firebase.js";
+    import {
+      collection,
+      getDocs,
+      updateDoc,
+      deleteDoc,
+      doc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    let projects = [];
+    let currentFilter = "All";
+
+    async function loadProjects() {
+      setStatus("Loading projects...");
+
+      try {
+        const querySnapshot = await getDocs(collection(db, collectionName));
+
+        projects = [];
+
+        querySnapshot.forEach((document) => {
+          projects.push({
+            id: document.id,
+            ...document.data()
+          });
+        });
+
+        projects.sort((a, b) => {
+          const aTime = a.updatedTimeText || "";
+          const bTime = b.updatedTimeText || "";
+          return bTime.localeCompare(aTime);
+        });
+
+        updateDashboard();
+        renderTable();
+        setStatus("Data loaded successfully.");
+      } catch (error) {
+        console.error("Load projects error:", error);
+        setStatus("Cannot load data from Firebase. Please check Firebase Config and Firestore Rules.");
+
+        document.getElementById("projectTable").innerHTML = `
+          <tr>
+            <td colspan="8" class="empty-message">Cannot load data from Firebase</td>
+          </tr>
+        `;
+      }
+    }
+
+    function renderTable() {
+      const tableBody = document.getElementById("projectTable");
+      tableBody.innerHTML = "";
+
+      const filteredProjects = currentFilter === "All"
+        ? projects
+        : projects.filter(item => item.status === currentFilter);
+
+      if (filteredProjects.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="8" class="empty-message">ไม่พบข้อมูลในสถานะนี้</td>
+          </tr>
+        `;
+        return;
+      }
+
+      filteredProjects.forEach((item, index) => {
+        const comments = Array.isArray(item.comments) ? item.comments : [];
+        const commentInputId = `comment-${item.id}`;
+
+        const commentHtml = comments.length === 0
+          ? `<div class="empty-message">No comment</div>`
+          : comments.map((comment, commentIndex) => {
+              const editedText = comment.editedAtText
+                ? `<span class="comment-edited">Edited: ${escapeHtml(comment.editedAtText)}</span>`
+                : "";
+
+              return `
+                <div class="comment-item">
+                  ${escapeHtml(comment.text || "")}
+                  <span class="comment-time">${escapeHtml(comment.createdAtText || "")}</span>
+                  ${editedText}
+
+                  <div class="comment-action-row">
+                    <button class="comment-edit-btn" onclick="editComment('${item.id}', ${commentIndex})">
+                      Edit
+                    </button>
+
+                    <button class="comment-delete-btn" onclick="deleteComment('${item.id}', ${commentIndex})">
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join("");
+
+        const row = `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${escapeHtml(item.engineerName || "")}</td>
+            <td>${escapeHtml(item.customer || "")}</td>
+            <td>${escapeHtml(item.projectName || "")}</td>
+            <td>${getStatusBadge(item.status || "")}</td>
+            <td>
+              <div class="comment-list">
+                ${commentHtml}
+                <textarea id="${commentInputId}" placeholder="Add comment..."></textarea>
+                <button class="comment-btn" onclick="addComment('${item.id}', '${commentInputId}')">
+                  Add Comment
+                </button>
+              </div>
+            </td>
+            <td>${escapeHtml(item.updatedTimeText || "")}</td>
+            <td>
+              <a class="small-link edit-btn" href="add.html?id=${item.id}">Edit</a>
+              <button class="delete-btn" onclick="deleteProject('${item.id}')">Delete</button>
+            </td>
+          </tr>
+        `;
+
+        tableBody.innerHTML += row;
+      });
+    }
+
+    function updateDashboard() {
+      const statuses = ["All", "Not Start", "Inprogress", "Onhold", "Completed"];
+
+      statuses.forEach(status => {
+        const count = status === "All"
+          ? projects.length
+          : projects.filter(item => item.status === status).length;
+
+        const countElement = document.getElementById(`count-${status}`);
+        if (countElement) {
+          countElement.innerText = count;
+        }
+      });
+    }
+
+    function setFilter(status) {
+      currentFilter = status;
+
+      const statuses = ["All", "Not Start", "Inprogress", "Onhold", "Completed"];
+
+      statuses.forEach(item => {
+        const card = document.getElementById(`card-${item}`);
+        if (card) {
+          card.classList.remove("active");
+        }
+      });
+
+      const activeCard = document.getElementById(`card-${status}`);
+      if (activeCard) {
+        activeCard.classList.add("active");
+      }
+
+      renderTable();
+    }
+
+    async function addComment(projectId, textareaId) {
+      const textarea = document.getElementById(textareaId);
+      const commentText = textarea.value.trim();
+
+      if (!commentText) {
+        alert("กรุณาใส่ Comment ก่อน");
+        return;
+      }
+
+      const item = projects.find(project => project.id === projectId);
+
+      if (!item) {
+        alert("ไม่พบ Project ที่ต้องการเพิ่ม Comment");
+        return;
+      }
+
+      const currentTime = getCurrentTimeText();
+
+      const existingComments = Array.isArray(item.comments)
+        ? item.comments
+        : [];
+
+      const updatedComments = [
+        ...existingComments,
+        {
+          text: commentText,
+          createdAtText: currentTime
+        }
+      ];
+
+      try {
+        await updateDoc(doc(db, collectionName, projectId), {
+          comments: updatedComments,
+          updatedTimeText: currentTime,
+          updatedAt: serverTimestamp()
+        });
+
+        textarea.value = "";
+        setStatus("Comment added successfully.");
+        await loadProjects();
+      } catch (error) {
+        console.error("Add comment error:", error);
+        alert("ไม่สามารถเพิ่ม Comment ได้ กรุณาตรวจสอบ Firebase / Firestore Rules");
+      }
+    }
+
+    async function editComment(projectId, commentIndex) {
+      const item = projects.find(project => project.id === projectId);
+
+      if (!item) {
+        alert("ไม่พบ Project ที่ต้องการแก้ไข Comment");
+        return;
+      }
+
+      const comments = Array.isArray(item.comments) ? item.comments : [];
+      const currentComment = comments[commentIndex];
+
+      if (!currentComment) {
+        alert("ไม่พบ Comment ที่ต้องการแก้ไข");
+        return;
+      }
+
+      const newCommentText = prompt("แก้ไข Comment:", currentComment.text || "");
+
+      if (newCommentText === null) {
+        return;
+      }
+
+      const trimmedComment = newCommentText.trim();
+
+      if (!trimmedComment) {
+        alert("Comment ห้ามว่าง");
+        return;
+      }
+
+      const currentTime = getCurrentTimeText();
+
+      const updatedComments = comments.map((comment, index) => {
+        if (index === commentIndex) {
+          return {
+            ...comment,
+            text: trimmedComment,
+            editedAtText: currentTime
+          };
+        }
+
+        return comment;
+      });
+
+      try {
+        await updateDoc(doc(db, collectionName, projectId), {
+          comments: updatedComments,
+          updatedTimeText: currentTime,
+          updatedAt: serverTimestamp()
+        });
+
+        setStatus("Comment updated successfully.");
+        await loadProjects();
+      } catch (error) {
+        console.error("Edit comment error:", error);
+        alert("ไม่สามารถแก้ไข Comment ได้ กรุณาตรวจสอบ Firebase / Firestore Rules");
+      }
+    }
+
+    async function deleteComment(projectId, commentIndex) {
+      const item = projects.find(project => project.id === projectId);
+
+      if (!item) {
+        alert("ไม่พบ Project ที่ต้องการลบ Comment");
+        return;
+      }
+
+      const comments = Array.isArray(item.comments) ? item.comments : [];
+      const currentComment = comments[commentIndex];
+
+      if (!currentComment) {
+        alert("ไม่พบ Comment ที่ต้องการลบ");
+        return;
+      }
+
+      if (!confirm("ต้องการลบ Comment นี้ใช่ไหม?")) {
+        return;
+      }
+
+      const currentTime = getCurrentTimeText();
+      const updatedComments = comments.filter((comment, index) => index !== commentIndex);
+
+      try {
+        await updateDoc(doc(db, collectionName, projectId), {
+          comments: updatedComments,
+          updatedTimeText: currentTime,
+          updatedAt: serverTimestamp()
+        });
+
+        setStatus("Comment deleted successfully.");
+        await loadProjects();
+      } catch (error) {
+        console.error("Delete comment error:", error);
+        alert("ไม่สามารถลบ Comment ได้ กรุณาตรวจสอบ Firebase / Firestore Rules");
+      }
+    }
+
+    async function deleteProject(projectId) {
+      const item = projects.find(project => project.id === projectId);
+
+      if (!item) {
+        alert("ไม่พบ Project ที่ต้องการลบ");
+        return;
+      }
+
+      if (!confirm("ต้องการลบ Project นี้ใช่ไหม?")) {
+        return;
+      }
+
+      try {
+        await deleteDoc(doc(db, collectionName, projectId));
+        setStatus("Project deleted successfully.");
+        await loadProjects();
+      } catch (error) {
+        console.error("Delete project error:", error);
+        alert("ไม่สามารถลบ Project ได้ กรุณาตรวจสอบ Firebase / Firestore Rules");
+      }
+    }
+
+    function getStatusBadge(status) {
+      let className = "status-badge";
+
+      if (status === "Not Start") {
+        className += " status-not-start";
+      } else if (status === "Inprogress") {
+        className += " status-inprogress";
+      } else if (status === "Onhold") {
+        className += " status-onhold";
+      } else if (status === "Completed") {
+        className += " status-completed";
+      }
+
+      return `<span class="${className}">${escapeHtml(status)}</span>`;
+    }
+
+    function getCurrentTimeText() {
+      return new Date().toLocaleString("th-TH", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      });
+    }
+
+    function setStatus(message) {
+      document.getElementById("statusMessage").innerText = message;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    window.setFilter = setFilter;
+    window.addComment = addComment;
+    window.editComment = editComment;
+    window.deleteComment = deleteComment;
+    window.deleteProject = deleteProject;
+
+    loadProjects();
+  </script>
 </body>
 </html>

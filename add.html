@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Add / Edit Project</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7fb;
+      margin: 0;
+      padding: 20px;
+      color: #1f2937;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      margin: auto;
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 18px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+    }
+
+    .header {
+      background: linear-gradient(135deg, #ddd6fe, #bfdbfe);
+      border-radius: 18px;
+      padding: 22px;
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 26px;
+      color: #1e3a8a;
+    }
+
+    .header p {
+      margin: 6px 0 0 0;
+      color: #475569;
+      font-size: 14px;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 18px;
+      text-decoration: none;
+      color: #2563eb;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 16px;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 6px;
+      color: #374151;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 14px;
+      background: #ffffff;
+      font-family: Arial, sans-serif;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 110px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button,
+    .cancel-link {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .save-btn {
+      background: #2563eb;
+      color: #ffffff;
+    }
+
+    .cancel-link {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    button:hover,
+    .cancel-link:hover {
+      opacity: 0.9;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .status-message {
+      margin-top: 12px;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 12px;
+      }
+
+      .container {
+        padding: 16px;
+        border-radius: 14px;
+      }
+
+      .header {
+        padding: 18px;
+      }
+
+      .header h1 {
+        font-size: 22px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      button,
+      .cancel-link {
+        width: 100%;
+        text-align: center;
+      }
+
+      .button-row {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <a class="back-link" href="index.html">← Back to Dashboard</a>
+
+    <div class="header">
+      <h1 id="pageTitle">Add Project</h1>
+      <p>เพิ่มหรือแก้ไขข้อมูล Project / งานค้าง</p>
+    </div>
+
+    <div class="card">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="engineerName">Engineer Name</label>
+          <input type="text" id="engineerName" placeholder="เช่น Somchai" />
+        </div>
+
+        <div class="form-group">
+          <label for="customer">Customer</label>
+          <input type="text" id="customer" placeholder="เช่น PICO Thailand" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="projectName">Project Name</label>
+        <input type="text" id="projectName" placeholder="เช่น Firewall Replacement" />
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select id="status">
+          <option value="">-- Select Status --</option>
+          <option value="Not Start">Not Start</option>
+          <option value="Inprogress">Inprogress</option>
+          <option value="Onhold">Onhold</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="comment">Comment</label>
+        <textarea id="comment" placeholder="ใส่รายละเอียดงาน / งานค้าง / สิ่งที่ต้องติดตาม"></textarea>
+      </div>
+
+      <div class="button-row">
+        <button class="save-btn" id="saveButton" onclick="saveProject()">Save Project</button>
+        <a class="cancel-link" href="index.html">Cancel</a>
+      </div>
+
+      <div id="statusMessage" class="status-message"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db, collectionName } from "./firebase.js";
+    import {
+      collection,
+      addDoc,
+      getDoc,
+      updateDoc,
+      doc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectId = urlParams.get("id");
+
+    let existingProject = null;
+
+    async function loadProjectForEdit() {
+      if (!projectId) {
+        return;
+      }
+
+      document.getElementById("pageTitle").innerText = "Edit Project";
+      document.getElementById("saveButton").innerText = "Update Project";
+      setStatus("Loading project...");
+
+      try {
+        const docRef = doc(db, collectionName, projectId);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) {
+          alert("ไม่พบ Project ที่ต้องการแก้ไข");
+          window.location.href = "index.html";
+          return;
+        }
+
+        existingProject = {
+          id: docSnap.id,
+          ...docSnap.data()
+        };
+
+        document.getElementById("engineerName").value = existingProject.engineerName || "";
+        document.getElementById("customer").value = existingProject.customer || "";
+        document.getElementById("projectName").value = existingProject.projectName || "";
+        document.getElementById("status").value = existingProject.status || "";
+        document.getElementById("comment").value = "";
+
+        setStatus("Project loaded.");
+      } catch (error) {
+        console.error("Load project error:", error);
+        setStatus("Cannot load project. Please check Firebase Config and Firestore Rules.");
+      }
+    }
+
+    async function saveProject() {
+      const engineerName = document.getElementById("engineerName").value.trim();
+      const customer = document.getElementById("customer").value.trim();
+      const projectName = document.getElementById("projectName").value.trim();
+      const status = document.getElementById("status").value;
+      const commentText = document.getElementById("comment").value.trim();
+
+      if (!engineerName || !customer || !projectName || !status) {
+        alert("กรุณากรอก Engineer Name, Customer, Project Name และ Status ให้ครบถ้วน");
+        return;
+      }
+
+      const saveButton = document.getElementById("saveButton");
+      saveButton.disabled = true;
+
+      const currentTime = getCurrentTimeText();
+
+      try {
+        if (!projectId) {
+          const comments = [];
+
+          if (commentText) {
+            comments.push({
+              text: commentText,
+              createdAtText: currentTime
+            });
+          }
+
+          await addDoc(collection(db, collectionName), {
+            engineerName: engineerName,
+            customer: customer,
+            projectName: projectName,
+            status: status,
+            comments: comments,
+            createdTimeText: currentTime,
+            updatedTimeText: currentTime,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          });
+
+          setStatus("Project added successfully.");
+        } else {
+          const existingComments = Array.isArray(existingProject?.comments)
+            ? existingProject.comments
+            : [];
+
+          const updatedComments = [...existingComments];
+
+          if (commentText) {
+            updatedComments.push({
+              text: commentText,
+              createdAtText: currentTime
+            });
+          }
+
+          await updateDoc(doc(db, collectionName, projectId), {
+            engineerName: engineerName,
+            customer: customer,
+            projectName: projectName,
+            status: status,
+            comments: updatedComments,
+            updatedTimeText: currentTime,
+            updatedAt: serverTimestamp()
+          });
+
+          setStatus("Project updated successfully.");
+        }
+
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 600);
+      } catch (error) {
+        console.error("Save project error:", error);
+        alert("ไม่สามารถบันทึกข้อมูลได้ กรุณาตรวจสอบ Firebase / Firestore Rules");
+        setStatus("Error saving project.");
+      } finally {
+        saveButton.disabled = false;
+      }
+    }
+
+    function getCurrentTimeText() {
+      return new Date().toLocaleString("th-TH", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      });
+    }
+
+    function setStatus(message) {
+      document.getElementById("statusMessage").innerText = message;
+    }
+
+    window.saveProject = saveProject;
+
+    loadProjectForEdit();
+  </script>
+</body>
+</html>
