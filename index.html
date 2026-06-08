@@ -39,9 +39,8 @@
     }
 
     .header-title h1 { margin: 0; font-size: 28px; color: #1e3a8a; }
-    .header-title p { margin: 6px 0 0 0; color: #475569; font-size: 14px; }
-
-    .header-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .header-title p  { margin: 6px 0 0 0; color: #475569; font-size: 14px; }
+    .header-actions  { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 
     .add-btn {
       text-decoration: none;
@@ -76,9 +75,6 @@
       margin-bottom: 14px;
       padding-bottom: 8px;
       border-bottom: 2px solid #dbeafe;
-      display: flex;
-      align-items: center;
-      gap: 10px;
     }
 
     .dashboard-grid {
@@ -97,15 +93,15 @@
       transition: 0.15s ease;
     }
 
-    .dashboard-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08); }
+    .dashboard-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(15,23,42,0.08); }
     .dashboard-card.active { border-color: #2563eb; background: #eff6ff; }
-    .card-all { background: #f8fafc; }
-    .card-not-start { background: #f3f4f6; }
+    .card-all        { background: #f8fafc; }
+    .card-not-start  { background: #f3f4f6; }
     .card-inprogress { background: #dbeafe; }
-    .card-onhold { background: #fef3c7; }
-    .card-completed { background: #dcfce7; }
+    .card-onhold     { background: #fef3c7; }
+    .card-completed  { background: #dcfce7; }
 
-    .dashboard-title { font-size: 13px; font-weight: bold; color: #475569; margin-bottom: 8px; }
+    .dashboard-title  { font-size: 13px; font-weight: bold; color: #475569; margin-bottom: 8px; }
     .dashboard-number { font-size: 30px; font-weight: bold; color: #1e40af; }
 
     .table-wrapper {
@@ -208,36 +204,27 @@
       margin-bottom: 6px;
     }
 
-    .edit-btn          { background: #f59e0b; }
-    .delete-btn        { background: #ef4444; }
-    .comment-btn       { background: #22c55e; margin-top: 8px; }
-    .comment-edit-btn  { background: #f59e0b; padding: 6px 10px; font-size: 11px; }
-    .comment-delete-btn{ background: #ef4444; padding: 6px 10px; font-size: 11px; }
-    .line-btn          { background: #06c755; }
-    .line-btn:disabled { background: #a7f3d0; cursor: not-allowed; opacity: 0.7; }
+    .edit-btn           { background: #f59e0b; }
+    .delete-btn         { background: #ef4444; }
+    .comment-btn        { background: #22c55e; margin-top: 8px; }
+    .comment-edit-btn   { background: #f59e0b; padding: 6px 10px; font-size: 11px; }
+    .comment-delete-btn { background: #ef4444; padding: 6px 10px; font-size: 11px; }
+    .line-btn           { background: #06c755; }
+    .line-btn:disabled  { background: #a7f3d0; cursor: not-allowed; opacity: 0.7; }
 
     button:hover, .small-link:hover { opacity: 0.9; }
 
     .empty-message  { text-align: center; color: #64748b; padding: 20px; }
     .status-message { margin-top: 12px; color: #64748b; font-size: 14px; }
 
-    .legend {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      font-size: 12px;
-      margin-bottom: 10px;
-    }
-
+    .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; margin-bottom: 10px; }
     .legend-item   { display: flex; align-items: center; gap: 5px; }
     .legend-dot    { width: 10px; height: 10px; border-radius: 50%; }
     .legend-red    { background: #ef4444; }
     .legend-orange { background: #f97316; }
     .legend-yellow { background: #eab308; }
 
-    @media (max-width: 900px) {
-      .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
-    }
+    @media (max-width: 900px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } }
 
     @media (max-width: 768px) {
       body { padding: 12px; }
@@ -316,9 +303,7 @@
             </tr>
           </thead>
           <tbody id="projectTable">
-            <tr>
-              <td colspan="9" class="empty-message">Loading data...</td>
-            </tr>
+            <tr><td colspan="9" class="empty-message">Loading data...</td></tr>
           </tbody>
         </table>
       </div>
@@ -342,45 +327,37 @@
     let projects = [];
     let currentFilter = "All";
 
-    // ─────────────────────────────────────────────────────────────────
-    // LINE Notify — ส่งผ่าน Netlify Function (หลีก CORS)
-    // ไฟล์ netlify/functions/line-notify.js ต้องมีอยู่ใน repo
-    // ─────────────────────────────────────────────────────────────────
-    async function sendLineNotify(token, message) {
-      if (!token) throw new Error("No LINE Token");
+    // ─── LINE Messaging API — ส่งผ่าน Netlify Function ───────────────
+    async function sendLineMessage(token, groupId, message) {
+      if (!token || !groupId) throw new Error("ไม่มี Token หรือ Group ID");
 
       const res = await fetch("/.netlify/functions/line-notify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, message })
+        body: JSON.stringify({ token, groupId, message })
       });
 
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(`LINE Notify error ${res.status}: ${text}`);
+        throw new Error(`LINE API error ${res.status}: ${text}`);
       }
 
       return true;
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // สร้างข้อความแจ้งเตือน LINE
-    // ─────────────────────────────────────────────────────────────────
-    function buildNotifyMessage(item, hoursLeft) {
-      const dueTxt = item.dueDateText || item.dueDate || "-";
-      const urgency = hoursLeft <= 0
-        ? "⚠️ เลยกำหนดแล้ว"
-        : hoursLeft <= 3
-        ? "🔴 ด่วนมาก!"
-        : hoursLeft <= 24
-        ? "🟡 ใกล้ถึงกำหนด"
-        : "📌 แจ้งเตือนล่วงหน้า";
+    // ─── สร้างข้อความแจ้งเตือน ────────────────────────────────────────
+    function buildMessage(item, hoursLeft) {
+      const dueTxt  = item.dueDateText || "-";
+      const urgency = hoursLeft <= 0    ? "⚠️ เลยกำหนดแล้ว"
+                    : hoursLeft <= 3    ? "🔴 ด่วนมาก!"
+                    : hoursLeft <= 24   ? "🟡 ใกล้ถึงกำหนด"
+                    :                    "📌 แจ้งเตือนล่วงหน้า";
 
       const timeText = hoursLeft > 0
         ? `อีก ${Math.round(hoursLeft)} ชม.`
         : `เลยกำหนดมาแล้ว ${Math.abs(Math.round(hoursLeft))} ชม.`;
 
-      return `\n${urgency}\n` +
+      return `${urgency}\n` +
         `📋 Project: ${item.projectName}\n` +
         `👷 Engineer: ${item.engineerName}\n` +
         `🏢 Customer: ${item.customer}\n` +
@@ -389,15 +366,13 @@
         `⏰ ${timeText}`;
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // ส่งแจ้งเตือน LINE สำหรับ Project เดียว (ปุ่มใน row)
-    // ─────────────────────────────────────────────────────────────────
+    // ─── ส่งแจ้งเตือนสำหรับ Project เดียว ───────────────────────────
     window.sendLineNotifyForProject = async function(projectId) {
       const item = projects.find(p => p.id === projectId);
       if (!item) return;
 
-      if (!item.lineToken) {
-        alert("ไม่มี LINE Token สำหรับ Project นี้\nกรุณากรอก Token ใน Edit Project");
+      if (!item.lineToken || !item.lineGroupId) {
+        alert("ไม่มี LINE Token หรือ Group ID\nกรุณากรอกใน Edit Project");
         return;
       }
 
@@ -409,7 +384,7 @@
         : 0;
 
       try {
-        await sendLineNotify(item.lineToken, buildNotifyMessage(item, hoursLeft));
+        await sendLineMessage(item.lineToken, item.lineGroupId, buildMessage(item, hoursLeft));
         alert(`✅ ส่งแจ้งเตือน LINE สำเร็จ!\n${item.projectName}`);
       } catch (err) {
         alert("❌ ส่งแจ้งเตือนไม่สำเร็จ:\n" + err.message);
@@ -418,17 +393,14 @@
       }
     };
 
-    // ─────────────────────────────────────────────────────────────────
-    // ส่งแจ้งเตือน LINE ทุก Project ที่ถึงเกณฑ์ (ปุ่มบน header)
-    // ─────────────────────────────────────────────────────────────────
+    // ─── ส่งแจ้งเตือนทุก Project ที่ถึงเกณฑ์ ────────────────────────
     window.notifyAllDue = async function() {
       const now = new Date();
-
       const dueItems = projects.filter(item => {
-        if (!item.dueDate || !item.lineToken || item.status === "Completed") return false;
+        if (!item.dueDate || !item.lineToken || !item.lineGroupId) return false;
+        if (item.status === "Completed") return false;
         const hoursLeft = (new Date(item.dueDate) - now) / 3600000;
-        const threshold = item.notifyBeforeHours || 24;
-        return hoursLeft <= threshold;
+        return hoursLeft <= (item.notifyBeforeHours || 24);
       });
 
       if (dueItems.length === 0) {
@@ -444,7 +416,7 @@
       for (const item of dueItems) {
         const hoursLeft = (new Date(item.dueDate) - now) / 3600000;
         try {
-          await sendLineNotify(item.lineToken, buildNotifyMessage(item, hoursLeft));
+          await sendLineMessage(item.lineToken, item.lineGroupId, buildMessage(item, hoursLeft));
           success++;
         } catch (e) {
           console.error("LINE notify failed:", item.projectName, e);
@@ -455,25 +427,20 @@
       alert(`✅ ส่งแจ้งเตือน LINE สำเร็จ ${success}/${dueItems.length} รายการ`);
     };
 
-    // ─────────────────────────────────────────────────────────────────
-    // Auto-notify เมื่อเปิดหน้า (ถ้ายังไม่เคยส่ง notified=false)
-    // ─────────────────────────────────────────────────────────────────
+    // ─── Auto-notify เมื่อเปิดหน้า ────────────────────────────────────
     function autoCheckNotifications() {
       const now = new Date();
-
       projects.forEach(async item => {
-        if (!item.dueDate || !item.lineToken || item.status === "Completed") return;
-        if (item.notified) return;
+        if (!item.dueDate || !item.lineToken || !item.lineGroupId) return;
+        if (item.status === "Completed" || item.notified) return;
 
         const hoursLeft = (new Date(item.dueDate) - now) / 3600000;
         const threshold = item.notifyBeforeHours || 24;
 
         if (hoursLeft <= threshold && hoursLeft > -72) {
           try {
-            const ok = await sendLineNotify(item.lineToken, buildNotifyMessage(item, hoursLeft));
-            if (ok) {
-              await updateDoc(doc(db, collectionName, item.id), { notified: true });
-            }
+            const ok = await sendLineMessage(item.lineToken, item.lineGroupId, buildMessage(item, hoursLeft));
+            if (ok) await updateDoc(doc(db, collectionName, item.id), { notified: true });
           } catch (e) {
             console.warn("Auto-notify failed:", item.projectName, e.message);
           }
@@ -481,24 +448,18 @@
       });
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // โหลด Projects จาก Firestore
-    // ─────────────────────────────────────────────────────────────────
+    // ─── โหลด Projects ────────────────────────────────────────────────
     async function loadProjects() {
       setStatus("Loading projects...");
-
       try {
         const querySnapshot = await getDocs(collection(db, collectionName));
-
         projects = [];
         querySnapshot.forEach(document => {
           projects.push({ id: document.id, ...document.data() });
         });
 
-        // เรียงตาม dueDate ก่อน (ใกล้กำหนดขึ้นก่อน) ถ้าไม่มี dueDate ไปไว้ท้าย
         projects.sort((a, b) => {
-          const aHas = !!a.dueDate;
-          const bHas = !!b.dueDate;
+          const aHas = !!a.dueDate, bHas = !!b.dueDate;
           if (aHas && bHas) return new Date(a.dueDate) - new Date(b.dueDate);
           if (aHas) return -1;
           if (bHas) return 1;
@@ -508,113 +469,81 @@
         updateDashboard();
         renderTable();
         setStatus("Data loaded successfully.");
-
         setTimeout(autoCheckNotifications, 1000);
       } catch (error) {
         console.error("Load projects error:", error);
-        setStatus("Cannot load data from Firebase. Please check Firebase Config and Firestore Rules.");
+        setStatus("Cannot load data from Firebase.");
         document.getElementById("projectTable").innerHTML =
           `<tr><td colspan="9" class="empty-message">Cannot load data from Firebase</td></tr>`;
       }
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // ตรวจความเร่งด่วนของ due date
-    // ─────────────────────────────────────────────────────────────────
+    // ─── Urgency helpers ───────────────────────────────────────────────
     function getUrgencyClass(dueDate, status) {
       if (!dueDate || status === "Completed") return "";
-      const hoursLeft = (new Date(dueDate) - new Date()) / 3600000;
-      if (hoursLeft < 0)    return "overdue";
-      if (hoursLeft <= 8)   return "due-today";
-      if (hoursLeft <= 24)  return "due-soon";
+      const h = (new Date(dueDate) - new Date()) / 3600000;
+      if (h < 0)   return "overdue";
+      if (h <= 8)  return "due-today";
+      if (h <= 24) return "due-soon";
       return "";
     }
 
     function getDueBadge(dueDate, dueDateText, status) {
       if (!dueDate) return `<span class="due-badge due-badge-none">ไม่ระบุ</span>`;
 
-      if (status === "Completed") {
-        const displayDate = dueDateText || new Date(dueDate).toLocaleString("th-TH", {
-          year: "numeric", month: "2-digit", day: "2-digit",
-          hour: "2-digit", minute: "2-digit"
-        });
-        return `<div style="font-size:13px;color:#374151;margin-bottom:4px">${escapeHtml(displayDate)}</div>
-                <span class="due-badge due-badge-ok">✅ เสร็จแล้ว</span>`;
-      }
-
-      const hoursLeft = (new Date(dueDate) - new Date()) / 3600000;
-      let badgeClass, label;
-
-      if (hoursLeft < 0) {
-        badgeClass = "due-badge-overdue";
-        label = `⛔ เลย ${Math.abs(Math.round(hoursLeft))} ชม.`;
-      } else if (hoursLeft <= 8) {
-        badgeClass = "due-badge-today";
-        label = `🔴 อีก ${Math.round(hoursLeft)} ชม.`;
-      } else if (hoursLeft <= 24) {
-        badgeClass = "due-badge-soon";
-        label = `🟡 อีก ${Math.round(hoursLeft)} ชม.`;
-      } else {
-        badgeClass = "due-badge-ok";
-        const days = Math.floor(hoursLeft / 24);
-        label = `🟢 อีก ${days} วัน`;
-      }
-
       const displayDate = dueDateText || new Date(dueDate).toLocaleString("th-TH", {
         year: "numeric", month: "2-digit", day: "2-digit",
         hour: "2-digit", minute: "2-digit"
       });
 
+      if (status === "Completed") {
+        return `<div style="font-size:13px;color:#374151;margin-bottom:4px">${escapeHtml(displayDate)}</div>
+                <span class="due-badge due-badge-ok">✅ เสร็จแล้ว</span>`;
+      }
+
+      const h = (new Date(dueDate) - new Date()) / 3600000;
+      let cls, label;
+      if (h < 0)        { cls = "due-badge-overdue"; label = `⛔ เลย ${Math.abs(Math.round(h))} ชม.`; }
+      else if (h <= 8)  { cls = "due-badge-today";   label = `🔴 อีก ${Math.round(h)} ชม.`; }
+      else if (h <= 24) { cls = "due-badge-soon";    label = `🟡 อีก ${Math.round(h)} ชม.`; }
+      else              { cls = "due-badge-ok";      label = `🟢 อีก ${Math.floor(h/24)} วัน`; }
+
       return `<div style="font-size:13px;color:#374151;margin-bottom:4px">${escapeHtml(displayDate)}</div>
-              <span class="due-badge ${badgeClass}">${label}</span>`;
+              <span class="due-badge ${cls}">${label}</span>`;
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // Render ตาราง
-    // ─────────────────────────────────────────────────────────────────
+    // ─── Render table ──────────────────────────────────────────────────
     function renderTable() {
       const tableBody = document.getElementById("projectTable");
       tableBody.innerHTML = "";
 
-      const filteredProjects = currentFilter === "All"
+      const list = currentFilter === "All"
         ? projects
         : projects.filter(item => item.status === currentFilter);
 
-      if (filteredProjects.length === 0) {
-        tableBody.innerHTML =
-          `<tr><td colspan="9" class="empty-message">ไม่พบข้อมูลในสถานะนี้</td></tr>`;
+      if (list.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="9" class="empty-message">ไม่พบข้อมูลในสถานะนี้</td></tr>`;
         return;
       }
 
-      filteredProjects.forEach((item, index) => {
-        const comments = Array.isArray(item.comments) ? item.comments : [];
+      list.forEach((item, index) => {
+        const comments       = Array.isArray(item.comments) ? item.comments : [];
         const commentInputId = `comment-${item.id}`;
-        const urgencyClass = getUrgencyClass(item.dueDate, item.status);
-        const hasLineToken = !!item.lineToken;
+        const urgencyClass   = getUrgencyClass(item.dueDate, item.status);
+        const hasLine        = !!(item.lineToken && item.lineGroupId);
 
         const commentHtml = comments.length === 0
           ? `<div class="empty-message" style="padding:6px">No comment</div>`
-          : comments.map((comment, ci) => {
-              const editedText = comment.editedAtText
-                ? `<span class="comment-edited">Edited: ${escapeHtml(comment.editedAtText)}</span>`
-                : "";
-              return `
-                <div class="comment-item">
-                  ${escapeHtml(comment.text || "")}
-                  <span class="comment-time">${escapeHtml(comment.createdAtText || "")}</span>
-                  ${editedText}
-                  <div class="comment-action-row">
-                    <button class="comment-edit-btn"
-                      onclick="editComment('${item.id}', ${ci})">Edit</button>
-                    <button class="comment-delete-btn"
-                      onclick="deleteComment('${item.id}', ${ci})">Delete</button>
-                  </div>
-                </div>`;
-            }).join("");
-
-        const lineDisabled  = !hasLineToken ? "disabled" : "";
-        const lineStyle     = !hasLineToken ? "style='opacity:0.4;cursor:not-allowed'" : "";
-        const lineTitle     = !hasLineToken ? "title='ยังไม่ได้ตั้งค่า LINE Token'" : "";
+          : comments.map((c, ci) => `
+              <div class="comment-item">
+                ${escapeHtml(c.text || "")}
+                <span class="comment-time">${escapeHtml(c.createdAtText || "")}</span>
+                ${c.editedAtText ? `<span class="comment-edited">Edited: ${escapeHtml(c.editedAtText)}</span>` : ""}
+                <div class="comment-action-row">
+                  <button class="comment-edit-btn" onclick="editComment('${item.id}', ${ci})">Edit</button>
+                  <button class="comment-delete-btn" onclick="deleteComment('${item.id}', ${ci})">Delete</button>
+                </div>
+              </div>`).join("");
 
         tableBody.innerHTML += `
           <tr class="${urgencyClass}">
@@ -623,15 +552,12 @@
             <td>${escapeHtml(item.customer || "")}</td>
             <td>${escapeHtml(item.projectName || "")}</td>
             <td>${getStatusBadge(item.status || "")}</td>
-            <td style="min-width:160px">
-              ${getDueBadge(item.dueDate, item.dueDateText, item.status)}
-            </td>
+            <td style="min-width:160px">${getDueBadge(item.dueDate, item.dueDateText, item.status)}</td>
             <td>
               <div class="comment-list">
                 ${commentHtml}
                 <textarea id="${commentInputId}" placeholder="Add comment..."></textarea>
-                <button class="comment-btn"
-                  onclick="addComment('${item.id}', '${commentInputId}')">Add Comment</button>
+                <button class="comment-btn" onclick="addComment('${item.id}', '${commentInputId}')">Add Comment</button>
               </div>
             </td>
             <td style="white-space:nowrap">${escapeHtml(item.updatedTimeText || "")}</td>
@@ -641,24 +567,20 @@
                 id="line-btn-${item.id}"
                 class="line-btn"
                 onclick="sendLineNotifyForProject('${item.id}')"
-                ${lineDisabled} ${lineStyle} ${lineTitle}
+                ${!hasLine ? "disabled title='ยังไม่ได้ตั้งค่า LINE Token / Group ID'" : ""}
+                ${!hasLine ? "style='opacity:0.4;cursor:not-allowed'" : ""}
               >🔔 LINE</button>
-              <button class="delete-btn"
-                onclick="deleteProject('${item.id}')">🗑️ Delete</button>
+              <button class="delete-btn" onclick="deleteProject('${item.id}')">🗑️ Delete</button>
             </td>
           </tr>`;
       });
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // Dashboard count
-    // ─────────────────────────────────────────────────────────────────
+    // ─── Dashboard ─────────────────────────────────────────────────────
     function updateDashboard() {
-      ["All", "Not Start", "Inprogress", "Onhold", "Completed"].forEach(status => {
-        const count = status === "All"
-          ? projects.length
-          : projects.filter(item => item.status === status).length;
-        const el = document.getElementById(`count-${status}`);
+      ["All", "Not Start", "Inprogress", "Onhold", "Completed"].forEach(s => {
+        const count = s === "All" ? projects.length : projects.filter(p => p.status === s).length;
+        const el = document.getElementById(`count-${s}`);
         if (el) el.innerText = count;
       });
     }
@@ -666,26 +588,24 @@
     function setFilter(status) {
       currentFilter = status;
       ["All", "Not Start", "Inprogress", "Onhold", "Completed"].forEach(s => {
-        const card = document.getElementById(`card-${s}`);
-        if (card) card.classList.remove("active");
+        const c = document.getElementById(`card-${s}`);
+        if (c) c.classList.remove("active");
       });
-      const activeCard = document.getElementById(`card-${status}`);
-      if (activeCard) activeCard.classList.add("active");
+      const a = document.getElementById(`card-${status}`);
+      if (a) a.classList.add("active");
       renderTable();
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // Comment functions
-    // ─────────────────────────────────────────────────────────────────
+    // ─── Comment functions ─────────────────────────────────────────────
     async function addComment(projectId, textareaId) {
-      const textarea = document.getElementById(textareaId);
+      const textarea    = document.getElementById(textareaId);
       const commentText = textarea.value.trim();
       if (!commentText) { alert("กรุณาใส่ Comment ก่อน"); return; }
 
       const item = projects.find(p => p.id === projectId);
-      if (!item) { alert("ไม่พบ Project"); return; }
+      if (!item) return;
 
-      const currentTime = getCurrentTimeText();
+      const currentTime    = getCurrentTimeText();
       const updatedComments = [
         ...(Array.isArray(item.comments) ? item.comments : []),
         { text: commentText, createdAtText: currentTime }
@@ -693,23 +613,19 @@
 
       try {
         await updateDoc(doc(db, collectionName, projectId), {
-          comments: updatedComments,
-          updatedTimeText: currentTime,
-          updatedAt: serverTimestamp()
+          comments: updatedComments, updatedTimeText: currentTime, updatedAt: serverTimestamp()
         });
         textarea.value = "";
-        setStatus("Comment added successfully.");
+        setStatus("Comment added.");
         await loadProjects();
-      } catch (error) {
-        console.error("Add comment error:", error);
-        alert("ไม่สามารถเพิ่ม Comment ได้ กรุณาตรวจสอบ Firestore Rules");
+      } catch (e) {
+        alert("ไม่สามารถเพิ่ม Comment ได้");
       }
     }
 
     async function editComment(projectId, commentIndex) {
       const item = projects.find(p => p.id === projectId);
       if (!item) return;
-
       const comments = Array.isArray(item.comments) ? item.comments : [];
       const cur = comments[commentIndex];
       if (!cur) return;
@@ -726,9 +642,7 @@
 
       try {
         await updateDoc(doc(db, collectionName, projectId), {
-          comments: updated,
-          updatedTimeText: currentTime,
-          updatedAt: serverTimestamp()
+          comments: updated, updatedTimeText: currentTime, updatedAt: serverTimestamp()
         });
         setStatus("Comment updated.");
         await loadProjects();
@@ -740,18 +654,15 @@
     async function deleteComment(projectId, commentIndex) {
       const item = projects.find(p => p.id === projectId);
       if (!item) return;
-
       if (!confirm("ต้องการลบ Comment นี้ใช่ไหม?")) return;
 
-      const comments = Array.isArray(item.comments) ? item.comments : [];
+      const comments    = Array.isArray(item.comments) ? item.comments : [];
       const currentTime = getCurrentTimeText();
-      const updated = comments.filter((_, i) => i !== commentIndex);
+      const updated     = comments.filter((_, i) => i !== commentIndex);
 
       try {
         await updateDoc(doc(db, collectionName, projectId), {
-          comments: updated,
-          updatedTimeText: currentTime,
-          updatedAt: serverTimestamp()
+          comments: updated, updatedTimeText: currentTime, updatedAt: serverTimestamp()
         });
         setStatus("Comment deleted.");
         await loadProjects();
@@ -760,24 +671,18 @@
       }
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // Delete project
-    // ─────────────────────────────────────────────────────────────────
     async function deleteProject(projectId) {
       if (!confirm("ต้องการลบ Project นี้ใช่ไหม?")) return;
-
       try {
         await deleteDoc(doc(db, collectionName, projectId));
         setStatus("Project deleted.");
         await loadProjects();
       } catch (e) {
-        alert("ไม่สามารถลบ Project ได้ กรุณาตรวจสอบ Firestore Rules");
+        alert("ไม่สามารถลบ Project ได้");
       }
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // Helpers
-    // ─────────────────────────────────────────────────────────────────
+    // ─── Helpers ───────────────────────────────────────────────────────
     function getStatusBadge(status) {
       const map = {
         "Not Start":  "status-not-start",
@@ -795,20 +700,15 @@
       });
     }
 
-    function setStatus(msg) {
-      document.getElementById("statusMessage").innerText = msg;
-    }
+    function setStatus(msg) { document.getElementById("statusMessage").innerText = msg; }
 
     function escapeHtml(v) {
       return String(v)
-        .replace(/&/g, "&amp;")
-        .replace(/</g,  "&lt;")
-        .replace(/>/g,  "&gt;")
-        .replace(/"/g,  "&quot;")
-        .replace(/'/g,  "&#039;");
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;").replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
-    // expose to inline onclick
     window.setFilter     = setFilter;
     window.addComment    = addComment;
     window.editComment   = editComment;
