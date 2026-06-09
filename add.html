@@ -14,7 +14,6 @@
     .back-link { display: inline-block; margin-bottom: 18px; text-decoration: none; color: #2563eb; font-weight: bold; font-size: 14px; }
     .card { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px; }
     .section-label { font-size: 13px; font-weight: bold; color: #6366f1; text-transform: uppercase; letter-spacing: 0.05em; margin: 20px 0 10px 0; padding-bottom: 6px; border-bottom: 1px solid #e0e7ff; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
     .form-group { display: flex; flex-direction: column; margin-bottom: 16px; }
     label { font-size: 14px; font-weight: bold; margin-bottom: 6px; color: #374151; }
     label .required { color: #ef4444; margin-left: 2px; }
@@ -22,6 +21,56 @@
     input, select, textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; background: #fff; font-family: Arial, sans-serif; }
     textarea { resize: vertical; min-height: 110px; }
     input:focus, select:focus, textarea:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.15); }
+
+    /* Engineer tags */
+    .engineer-box {
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 8px 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      min-height: 48px;
+      cursor: text;
+    }
+    .engineer-box:focus-within { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.15); }
+    .engineer-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #dbeafe;
+      color: #1e40af;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 13px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    .engineer-tag button {
+      background: none;
+      border: none;
+      color: #1e40af;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+      margin: 0;
+      border-radius: 0;
+    }
+    .engineer-tag button:hover { color: #ef4444; opacity: 1; }
+    .engineer-input {
+      border: none !important;
+      outline: none !important;
+      padding: 4px 6px !important;
+      font-size: 14px;
+      min-width: 140px;
+      flex: 1;
+      background: transparent !important;
+      box-shadow: none !important;
+    }
+
     .due-date-wrapper { position: relative; }
     .due-date-wrapper input[type="datetime-local"] { padding-right: 38px; }
     .due-date-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 18px; pointer-events: none; }
@@ -35,12 +84,13 @@
     button:hover, .cancel-link:hover { opacity: 0.9; }
     button:disabled { opacity: 0.6; cursor: not-allowed; }
     .status-message { margin-top: 12px; color: #64748b; font-size: 14px; }
+    .hint-text { font-size: 12px; color: #94a3b8; margin-top: 5px; }
+
     @media (max-width: 768px) {
       body { padding: 12px; }
       .container { padding: 16px; border-radius: 14px; }
       .header { padding: 18px; }
       .header h1 { font-size: 22px; }
-      .form-grid { grid-template-columns: 1fr; }
       button, .cancel-link { width: 100%; text-align: center; }
       .button-row { flex-direction: column; }
     }
@@ -59,15 +109,23 @@
 
       <div class="section-label">📋 Project Information</div>
 
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="engineerName">Engineer Name <span class="required">*</span></label>
-          <input type="text" id="engineerName" placeholder="เช่น Somchai" />
+      <!-- Engineer Name — multi tag input -->
+      <div class="form-group">
+        <label>Engineer Name <span class="required">*</span></label>
+        <div class="engineer-box" id="engineerBox" onclick="document.getElementById('engineerInput').focus()">
+          <input
+            type="text"
+            id="engineerInput"
+            class="engineer-input"
+            placeholder="พิมพ์ชื่อแล้วกด Enter หรือ ,"
+          />
         </div>
-        <div class="form-group">
-          <label for="customer">Customer <span class="required">*</span></label>
-          <input type="text" id="customer" placeholder="เช่น PICO Thailand" />
-        </div>
+        <div class="hint-text">กด Enter หรือ , เพื่อเพิ่มชื่อ — เพิ่มได้หลายคน</div>
+      </div>
+
+      <div class="form-group">
+        <label for="customer">Customer <span class="required">*</span></label>
+        <input type="text" id="customer" placeholder="เช่น PICO Thailand" />
       </div>
 
       <div class="form-group">
@@ -139,14 +197,66 @@
       collection, addDoc, getDoc, updateDoc, doc, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    const urlParams  = new URLSearchParams(window.location.search);
-    const projectId  = urlParams.get("id");
+    const urlParams     = new URLSearchParams(window.location.search);
+    const projectId     = urlParams.get("id");
     let existingProject = null;
+    let engineers       = []; // array of engineer names
 
+    // ── Tag input logic ──────────────────────────────────────────────
+    const engineerInput = document.getElementById("engineerInput");
+    const engineerBox   = document.getElementById("engineerBox");
+
+    function renderTags() {
+      // Remove existing tags (keep the input)
+      engineerBox.querySelectorAll(".engineer-tag").forEach(t => t.remove());
+
+      engineers.forEach((name, i) => {
+        const tag = document.createElement("div");
+        tag.className = "engineer-tag";
+        tag.innerHTML = `${escapeHtml(name)} <button type="button" onclick="removeEngineer(${i})">×</button>`;
+        engineerBox.insertBefore(tag, engineerInput);
+      });
+    }
+
+    function addEngineer(name) {
+      const trimmed = name.trim();
+      if (!trimmed) return;
+      if (engineers.includes(trimmed)) return; // no duplicates
+      engineers.push(trimmed);
+      renderTags();
+      engineerInput.value = "";
+    }
+
+    window.removeEngineer = function(index) {
+      engineers.splice(index, 1);
+      renderTags();
+    };
+
+    engineerInput.addEventListener("keydown", function(e) {
+      if (e.key === "Enter" || e.key === ",") {
+        e.preventDefault();
+        addEngineer(engineerInput.value.replace(/,/g, ""));
+      }
+      // Backspace on empty input removes last tag
+      if (e.key === "Backspace" && engineerInput.value === "" && engineers.length > 0) {
+        engineers.pop();
+        renderTags();
+      }
+    });
+
+    engineerInput.addEventListener("blur", function() {
+      if (engineerInput.value.trim()) addEngineer(engineerInput.value);
+    });
+
+    function escapeHtml(v) {
+      return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+    // ── Load for edit ────────────────────────────────────────────────
     async function loadProjectForEdit() {
       if (!projectId) return;
-      document.getElementById("pageTitle").innerText   = "Edit Project";
-      document.getElementById("saveButton").innerText  = "Update Project";
+      document.getElementById("pageTitle").innerText  = "Edit Project";
+      document.getElementById("saveButton").innerText = "Update Project";
       setStatus("Loading project...");
 
       try {
@@ -158,7 +268,15 @@
         }
 
         existingProject = { id: docSnap.id, ...docSnap.data() };
-        document.getElementById("engineerName").value      = existingProject.engineerName || "";
+
+        // Load engineers — support both old string and new array format
+        if (Array.isArray(existingProject.engineers)) {
+          engineers = [...existingProject.engineers];
+        } else if (existingProject.engineerName) {
+          engineers = [existingProject.engineerName];
+        }
+        renderTags();
+
         document.getElementById("customer").value          = existingProject.customer || "";
         document.getElementById("projectName").value       = existingProject.projectName || "";
         document.getElementById("status").value            = existingProject.status || "";
@@ -179,8 +297,11 @@
       }
     }
 
+    // ── Save ─────────────────────────────────────────────────────────
     async function saveProject() {
-      const engineerName      = document.getElementById("engineerName").value.trim();
+      // Flush any partially typed name in the input
+      if (engineerInput.value.trim()) addEngineer(engineerInput.value);
+
       const customer          = document.getElementById("customer").value.trim();
       const projectName       = document.getElementById("projectName").value.trim();
       const status            = document.getElementById("status").value;
@@ -188,25 +309,30 @@
       const notifyBeforeHours = parseInt(document.getElementById("notifyBeforeHours").value) || 24;
       const dueDateValue      = document.getElementById("dueDate").value;
 
-      if (!engineerName || !customer || !projectName || !status) {
-        alert("กรุณากรอก Engineer Name, Customer, Project Name และ Status ให้ครบถ้วน");
+      if (engineers.length === 0 || !customer || !projectName || !status) {
+        alert("กรุณากรอก Engineer Name อย่างน้อย 1 คน, Customer, Project Name และ Status ให้ครบถ้วน");
         return;
       }
 
-      const saveButton  = document.getElementById("saveButton");
+      const saveButton    = document.getElementById("saveButton");
       saveButton.disabled = true;
 
-      const currentTime = getCurrentTimeText();
-      const dueDateISO  = dueDateValue ? new Date(dueDateValue).toISOString() : null;
-      const dueDateText = dueDateValue
+      const currentTime   = getCurrentTimeText();
+      const dueDateISO    = dueDateValue ? new Date(dueDateValue).toISOString() : null;
+      const dueDateText   = dueDateValue
         ? new Date(dueDateValue).toLocaleString("th-TH", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" })
         : null;
+
+      // engineerName (string) = joined for backward compat display
+      const engineerName  = engineers.join(", ");
 
       try {
         if (!projectId) {
           const comments = commentText ? [{ text: commentText, createdAtText: currentTime }] : [];
           await addDoc(collection(db, collectionName), {
-            engineerName, customer, projectName, status, comments,
+            engineers,        // array — new field
+            engineerName,     // string — backward compat
+            customer, projectName, status, comments,
             dueDate: dueDateISO, dueDateText, notifyBeforeHours,
             notified: false,
             createdTimeText: currentTime, updatedTimeText: currentTime,
@@ -214,12 +340,13 @@
           });
           setStatus("Project added successfully.");
         } else {
-          const existingComments  = Array.isArray(existingProject?.comments) ? existingProject.comments : [];
-          const updatedComments   = [...existingComments];
+          const existingComments = Array.isArray(existingProject?.comments) ? existingProject.comments : [];
+          const updatedComments  = [...existingComments];
           if (commentText) updatedComments.push({ text: commentText, createdAtText: currentTime });
 
           await updateDoc(doc(db, collectionName, projectId), {
-            engineerName, customer, projectName, status,
+            engineers, engineerName,
+            customer, projectName, status,
             comments: updatedComments,
             dueDate: dueDateISO, dueDateText, notifyBeforeHours,
             notified: false,

@@ -296,7 +296,7 @@
         tableBody.innerHTML += `
           <tr class="${urg}">
             <td>${index+1}</td>
-            <td>${escapeHtml(item.engineerName||"")}</td>
+            <td>${getEngineerBadges(item)}</td>
             <td>${escapeHtml(item.customer||"")}</td>
             <td>${escapeHtml(item.projectName||"")}</td>
             <td>${getStatusBadge(item.status||"")}</td>
@@ -378,6 +378,15 @@
       if (!confirm("ต้องการลบ Project นี้ใช่ไหม?")) return;
       try { await deleteDoc(doc(db, collectionName, projectId)); setStatus("Project deleted."); await loadProjects(); }
       catch (e) { alert("ไม่สามารถลบ Project ได้"); }
+    }
+
+    function getEngineerBadges(item) {
+      const list = Array.isArray(item.engineers) && item.engineers.length > 0
+        ? item.engineers
+        : (item.engineerName ? item.engineerName.split(",").map(s => s.trim()) : ["-"]);
+      return list.map(name =>
+        `<span style="display:inline-block;background:#dbeafe;color:#1e40af;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:bold;margin:2px 2px 2px 0;white-space:nowrap">${escapeHtml(name)}</span>`
+      ).join("");
     }
 
     function getStatusBadge(s) {
