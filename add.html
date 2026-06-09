@@ -6,136 +6,35 @@
   <title>Add / Edit Project</title>
   <style>
     * { box-sizing: border-box; }
-
-    body {
-      font-family: Arial, sans-serif;
-      background: #f7f7fb;
-      margin: 0;
-      padding: 20px;
-      color: #1f2937;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 900px;
-      margin: auto;
-      background: #ffffff;
-      padding: 24px;
-      border-radius: 18px;
-      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
-    }
-
-    .header {
-      background: linear-gradient(135deg, #ddd6fe, #bfdbfe);
-      border-radius: 18px;
-      padding: 22px;
-      margin-bottom: 24px;
-    }
-
+    body { font-family: Arial, sans-serif; background: #f7f7fb; margin: 0; padding: 20px; color: #1f2937; }
+    .container { width: 100%; max-width: 900px; margin: auto; background: #fff; padding: 24px; border-radius: 18px; box-shadow: 0 6px 18px rgba(15,23,42,0.06); }
+    .header { background: linear-gradient(135deg, #ddd6fe, #bfdbfe); border-radius: 18px; padding: 22px; margin-bottom: 24px; }
     .header h1 { margin: 0; font-size: 26px; color: #1e3a8a; }
     .header p  { margin: 6px 0 0 0; color: #475569; font-size: 14px; }
-
-    .back-link {
-      display: inline-block;
-      margin-bottom: 18px;
-      text-decoration: none;
-      color: #2563eb;
-      font-weight: bold;
-      font-size: 14px;
-    }
-
-    .card {
-      background: #f8fafc;
-      border: 1px solid #e5e7eb;
-      border-radius: 16px;
-      padding: 20px;
-    }
-
-    .section-label {
-      font-size: 13px;
-      font-weight: bold;
-      color: #6366f1;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin: 20px 0 10px 0;
-      padding-bottom: 6px;
-      border-bottom: 1px solid #e0e7ff;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 16px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 16px;
-    }
-
+    .back-link { display: inline-block; margin-bottom: 18px; text-decoration: none; color: #2563eb; font-weight: bold; font-size: 14px; }
+    .card { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px; }
+    .section-label { font-size: 13px; font-weight: bold; color: #6366f1; text-transform: uppercase; letter-spacing: 0.05em; margin: 20px 0 10px 0; padding-bottom: 6px; border-bottom: 1px solid #e0e7ff; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+    .form-group { display: flex; flex-direction: column; margin-bottom: 16px; }
     label { font-size: 14px; font-weight: bold; margin-bottom: 6px; color: #374151; }
     label .required { color: #ef4444; margin-left: 2px; }
     label .hint { font-weight: normal; font-size: 12px; color: #94a3b8; margin-left: 6px; }
-
-    input, select, textarea {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      font-size: 14px;
-      background: #ffffff;
-      font-family: Arial, sans-serif;
-    }
-
+    input, select, textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; background: #fff; font-family: Arial, sans-serif; }
     textarea { resize: vertical; min-height: 110px; }
-
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: #2563eb;
-      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
-    }
-
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.15); }
     .due-date-wrapper { position: relative; }
     .due-date-wrapper input[type="datetime-local"] { padding-right: 38px; }
-    .due-date-icon {
-      position: absolute; right: 12px; top: 50%;
-      transform: translateY(-50%); font-size: 18px; pointer-events: none;
-    }
-
-    .line-card {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: 14px;
-      padding: 16px;
-      margin-top: 4px;
-    }
-
-    .line-logo { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-    .line-logo span {
-      background: #06c755; color: #fff; font-weight: bold;
-      font-size: 13px; padding: 3px 10px; border-radius: 999px;
-    }
-    .line-logo p { margin: 0; color: #166534; font-size: 13px; }
-    .line-help { font-size: 12px; color: #64748b; margin-top: 6px; }
-    .line-help a { color: #2563eb; }
-
+    .due-date-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 18px; pointer-events: none; }
+    .line-info { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+    .line-info .badge { background: #06c755; color: #fff; font-weight: bold; font-size: 13px; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+    .line-info p { margin: 0; color: #166534; font-size: 13px; }
     .button-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
-
-    button, .cancel-link {
-      border: none; border-radius: 10px; padding: 12px 18px;
-      font-size: 14px; font-weight: bold; cursor: pointer;
-      text-decoration: none; display: inline-block;
-    }
-
-    .save-btn { background: #2563eb; color: #ffffff; }
+    button, .cancel-link { border: none; border-radius: 10px; padding: 12px 18px; font-size: 14px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
+    .save-btn { background: #2563eb; color: #fff; }
     .cancel-link { background: #e5e7eb; color: #374151; }
     button:hover, .cancel-link:hover { opacity: 0.9; }
     button:disabled { opacity: 0.6; cursor: not-allowed; }
-
     .status-message { margin-top: 12px; color: #64748b; font-size: 14px; }
-
     @media (max-width: 768px) {
       body { padding: 12px; }
       .container { padding: 16px; border-radius: 14px; }
@@ -147,7 +46,6 @@
     }
   </style>
 </head>
-
 <body>
   <div class="container">
     <a class="back-link" href="index.html">← Back to Dashboard</a>
@@ -191,10 +89,7 @@
       <div class="section-label">📅 Schedule / Onsite Date</div>
 
       <div class="form-group">
-        <label for="dueDate">
-          วันที่นัดหมาย / Onsite Date
-          <span class="hint">(กำหนดเวลาที่ต้องทำงาน)</span>
-        </label>
+        <label for="dueDate">วันที่นัดหมาย / Onsite Date <span class="hint">(กำหนดเวลาที่ต้องทำงาน)</span></label>
         <div class="due-date-wrapper">
           <input type="datetime-local" id="dueDate" />
           <span class="due-date-icon">📅</span>
@@ -202,10 +97,7 @@
       </div>
 
       <div class="form-group">
-        <label for="notifyBeforeHours">
-          แจ้งเตือนล่วงหน้า
-          <span class="hint">(ชั่วโมงก่อนถึงกำหนด)</span>
-        </label>
+        <label for="notifyBeforeHours">แจ้งเตือนล่วงหน้า <span class="hint">(ชั่วโมงก่อนถึงกำหนด)</span></label>
         <select id="notifyBeforeHours">
           <option value="1">1 ชั่วโมง</option>
           <option value="2">2 ชั่วโมง</option>
@@ -218,33 +110,11 @@
         </select>
       </div>
 
-      <div class="section-label">🔔 LINE Messaging API</div>
+      <div class="section-label">🔔 LINE Notification</div>
 
-      <div class="line-card">
-        <div class="line-logo">
-          <span>LINE</span>
-          <p>ตั้งค่าสำหรับส่งแจ้งเตือนผ่าน LINE Messaging API</p>
-        </div>
-
-        <div class="form-group">
-          <label for="lineToken">
-            Channel Access Token
-            <span class="hint">(จาก LINE Developers Console)</span>
-          </label>
-          <input type="text" id="lineToken" placeholder="เช่น VV+18c0a3OwQAKl..." />
-        </div>
-
-        <div class="form-group" style="margin-bottom:0">
-          <label for="lineGroupId">
-            Group ID
-            <span class="hint">(รับจาก Webhook ครั้งแรก)</span>
-          </label>
-          <input type="text" id="lineGroupId" placeholder="เช่น Cxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
-        </div>
-
-        <p class="line-help">
-          วิธีรับ Group ID: เพิ่ม Bot เข้ากลุ่ม LINE → ให้คนในกลุ่มพิมพ์ข้อความ → ดู Log ใน Netlify Functions
-        </p>
+      <div class="line-info">
+        <span class="badge">LINE</span>
+        <p>แจ้งเตือนอัตโนมัติเข้ากลุ่ม LINE เมื่อใกล้ถึงกำหนด — ไม่ต้องตั้งค่าเพิ่มเติม</p>
       </div>
 
       <div class="section-label">💬 Comment</div>
@@ -266,29 +136,21 @@
   <script type="module">
     import { db, collectionName } from "./firebase.js";
     import {
-      collection,
-      addDoc,
-      getDoc,
-      updateDoc,
-      doc,
-      serverTimestamp
+      collection, addDoc, getDoc, updateDoc, doc, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const projectId = urlParams.get("id");
+    const urlParams  = new URLSearchParams(window.location.search);
+    const projectId  = urlParams.get("id");
     let existingProject = null;
 
     async function loadProjectForEdit() {
       if (!projectId) return;
-
-      document.getElementById("pageTitle").innerText = "Edit Project";
-      document.getElementById("saveButton").innerText = "Update Project";
+      document.getElementById("pageTitle").innerText   = "Edit Project";
+      document.getElementById("saveButton").innerText  = "Update Project";
       setStatus("Loading project...");
 
       try {
-        const docRef = doc(db, collectionName, projectId);
-        const docSnap = await getDoc(docRef);
-
+        const docSnap = await getDoc(doc(db, collectionName, projectId));
         if (!docSnap.exists()) {
           alert("ไม่พบ Project ที่ต้องการแก้ไข");
           window.location.href = "index.html";
@@ -296,92 +158,79 @@
         }
 
         existingProject = { id: docSnap.id, ...docSnap.data() };
-
-        document.getElementById("engineerName").value     = existingProject.engineerName || "";
-        document.getElementById("customer").value         = existingProject.customer || "";
-        document.getElementById("projectName").value      = existingProject.projectName || "";
-        document.getElementById("status").value           = existingProject.status || "";
-        document.getElementById("comment").value          = "";
-        document.getElementById("lineToken").value        = existingProject.lineToken || "";
-        document.getElementById("lineGroupId").value      = existingProject.lineGroupId || "";
+        document.getElementById("engineerName").value      = existingProject.engineerName || "";
+        document.getElementById("customer").value          = existingProject.customer || "";
+        document.getElementById("projectName").value       = existingProject.projectName || "";
+        document.getElementById("status").value            = existingProject.status || "";
+        document.getElementById("comment").value           = "";
         document.getElementById("notifyBeforeHours").value = existingProject.notifyBeforeHours || "24";
 
         if (existingProject.dueDate) {
-          const d = new Date(existingProject.dueDate);
+          const d   = new Date(existingProject.dueDate);
           const pad = n => String(n).padStart(2, "0");
-          const local = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-          document.getElementById("dueDate").value = local;
+          document.getElementById("dueDate").value =
+            `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
         }
 
         setStatus("Project loaded.");
       } catch (error) {
-        console.error("Load project error:", error);
-        setStatus("Cannot load project. Please check Firebase Config and Firestore Rules.");
+        console.error(error);
+        setStatus("Cannot load project.");
       }
     }
 
     async function saveProject() {
-      const engineerName       = document.getElementById("engineerName").value.trim();
-      const customer           = document.getElementById("customer").value.trim();
-      const projectName        = document.getElementById("projectName").value.trim();
-      const status             = document.getElementById("status").value;
-      const commentText        = document.getElementById("comment").value.trim();
-      const lineToken          = document.getElementById("lineToken").value.trim();
-      const lineGroupId        = document.getElementById("lineGroupId").value.trim();
-      const notifyBeforeHours  = parseInt(document.getElementById("notifyBeforeHours").value) || 24;
-      const dueDateValue       = document.getElementById("dueDate").value;
+      const engineerName      = document.getElementById("engineerName").value.trim();
+      const customer          = document.getElementById("customer").value.trim();
+      const projectName       = document.getElementById("projectName").value.trim();
+      const status            = document.getElementById("status").value;
+      const commentText       = document.getElementById("comment").value.trim();
+      const notifyBeforeHours = parseInt(document.getElementById("notifyBeforeHours").value) || 24;
+      const dueDateValue      = document.getElementById("dueDate").value;
 
       if (!engineerName || !customer || !projectName || !status) {
         alert("กรุณากรอก Engineer Name, Customer, Project Name และ Status ให้ครบถ้วน");
         return;
       }
 
-      const saveButton = document.getElementById("saveButton");
+      const saveButton  = document.getElementById("saveButton");
       saveButton.disabled = true;
 
       const currentTime = getCurrentTimeText();
       const dueDateISO  = dueDateValue ? new Date(dueDateValue).toISOString() : null;
       const dueDateText = dueDateValue
-        ? new Date(dueDateValue).toLocaleString("th-TH", {
-            year: "numeric", month: "2-digit", day: "2-digit",
-            hour: "2-digit", minute: "2-digit"
-          })
+        ? new Date(dueDateValue).toLocaleString("th-TH", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" })
         : null;
 
       try {
         if (!projectId) {
-          const comments = [];
-          if (commentText) comments.push({ text: commentText, createdAtText: currentTime });
-
+          const comments = commentText ? [{ text: commentText, createdAtText: currentTime }] : [];
           await addDoc(collection(db, collectionName), {
             engineerName, customer, projectName, status, comments,
             dueDate: dueDateISO, dueDateText, notifyBeforeHours,
-            lineToken, lineGroupId, notified: false,
+            notified: false,
             createdTimeText: currentTime, updatedTimeText: currentTime,
             createdAt: serverTimestamp(), updatedAt: serverTimestamp()
           });
-
           setStatus("Project added successfully.");
         } else {
-          const existingComments = Array.isArray(existingProject?.comments)
-            ? existingProject.comments : [];
-          const updatedComments = [...existingComments];
+          const existingComments  = Array.isArray(existingProject?.comments) ? existingProject.comments : [];
+          const updatedComments   = [...existingComments];
           if (commentText) updatedComments.push({ text: commentText, createdAtText: currentTime });
 
           await updateDoc(doc(db, collectionName, projectId), {
             engineerName, customer, projectName, status,
             comments: updatedComments,
             dueDate: dueDateISO, dueDateText, notifyBeforeHours,
-            lineToken, lineGroupId, notified: false,
+            notified: false,
             updatedTimeText: currentTime, updatedAt: serverTimestamp()
           });
-
           setStatus("Project updated successfully.");
         }
 
         setTimeout(() => { window.location.href = "index.html"; }, 600);
       } catch (error) {
-        console.error("Save project error:", error);
+        console.error(error);
         alert("ไม่สามารถบันทึกข้อมูลได้ กรุณาตรวจสอบ Firebase / Firestore Rules");
         setStatus("Error saving project.");
       } finally {
@@ -390,15 +239,10 @@
     }
 
     function getCurrentTimeText() {
-      return new Date().toLocaleString("th-TH", {
-        year: "numeric", month: "2-digit", day: "2-digit",
-        hour: "2-digit", minute: "2-digit", second: "2-digit"
-      });
+      return new Date().toLocaleString("th-TH", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit" });
     }
 
-    function setStatus(message) {
-      document.getElementById("statusMessage").innerText = message;
-    }
+    function setStatus(msg) { document.getElementById("statusMessage").innerText = msg; }
 
     window.saveProject = saveProject;
     loadProjectForEdit();
