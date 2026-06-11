@@ -129,8 +129,13 @@
       </div>
 
       <div class="form-group">
-        <label for="projectName">Project Name <span class="required">*</span></label>
-        <input type="text" id="projectName" placeholder="เช่น Firewall Replacement" />
+        <label for="projectName">Project / Task / PM <span class="required">*</span></label>
+        <input type="text" id="projectName" placeholder="เช่น Firewall Replacement / Install Switch / PM Server" />
+      </div>
+
+      <div class="form-group">
+        <label for="detail">Detail <span class="hint">(รายละเอียดงาน — จะแสดงในการแจ้งเตือน)</span></label>
+        <textarea id="detail" style="min-height:80px" placeholder="เช่น ติดตั้ง Firewall PA-440 พร้อม Config Policy / ตรวจสอบ PM Server ชั้น 3"></textarea>
       </div>
 
       <div class="form-group">
@@ -274,6 +279,7 @@
         document.getElementById("projectName").value       = existingProject.projectName || "";
         document.getElementById("status").value            = existingProject.status || "";
         document.getElementById("comment").value           = "";
+        document.getElementById("detail").value            = existingProject.detail || "";
         document.getElementById("notifyBeforeHours").value = existingProject.notifyBeforeHours || "24";
 
         if (existingProject.dueDate) {
@@ -299,6 +305,7 @@
       const projectName       = document.getElementById("projectName").value.trim();
       const status            = document.getElementById("status").value;
       const commentText       = document.getElementById("comment").value.trim();
+      const detail            = document.getElementById("detail").value.trim();
       const notifyBeforeHours = parseInt(document.getElementById("notifyBeforeHours").value) || 24;
       const dueDateValue      = document.getElementById("dueDate").value;
 
@@ -325,7 +332,7 @@
           await addDoc(collection(db, collectionName), {
             engineers,        // array — new field
             engineerName,     // string — backward compat
-            customer, projectName, status, comments,
+            customer, projectName, detail, status, comments,
             dueDate: dueDateISO, dueDateText, notifyBeforeHours,
             notified: false,
             createdTimeText: currentTime, updatedTimeText: currentTime,
@@ -339,7 +346,7 @@
 
           await updateDoc(doc(db, collectionName, projectId), {
             engineers, engineerName,
-            customer, projectName, status,
+            customer, projectName, detail, status,
             comments: updatedComments,
             dueDate: dueDateISO, dueDateText, notifyBeforeHours,
             notified: false,

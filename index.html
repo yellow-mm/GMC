@@ -112,9 +112,9 @@
     .project-card:hover { box-shadow: 0 4px 16px rgba(15,23,42,0.08); }
 
     /* urgency — subtle top border only */
-    .project-card.overdue  { border-top: 2px solid #d289b4; }
-    .project-card.due-today { border-top: 2px solid #f8edf3; }
-    .project-card.due-soon  { border-top: 2px solid #dfaac9; }
+    .project-card.overdue  { border-top: 3px solid #ef4444; }
+    .project-card.due-today { border-top: 3px solid #f97316; }
+    .project-card.due-soon  { border-top: 3px solid #eab308; }
 
     .pc-label {
       font-size: 11px;
@@ -327,7 +327,8 @@
       const engineers = Array.isArray(item.engineers) && item.engineers.length > 0
         ? item.engineers.join(", ") : (item.engineerName || "-");
 
-      return `${urgency}\n📋 Project: ${item.projectName}\n👷 Engineer: ${engineers}\n🏢 Customer: ${item.customer}\n📊 Status: ${item.status}\n📅 Due: ${dueTxt}\n⏰ ${timeText}`;
+      const detailLine = item.detail ? `\n📝 Detail: ${item.detail}` : "";
+      return `${urgency}\n📋 Project: ${item.projectName}${detailLine}\n👷 Engineer: ${engineers}\n🏢 Customer: ${item.customer}\n📊 Status: ${item.status}\n📅 Due: ${dueTxt}\n⏰ ${timeText}`;
     }
 
     window.sendAlertForProject = async function(projectId) {
@@ -475,8 +476,9 @@
         card.innerHTML = `
           <!-- Col 1: Project -->
           <div>
-            <div class="pc-label">Project</div>
+            <div class="pc-label">Project / Task / PM</div>
             <div class="pc-value large">${escapeHtml(item.projectName || "")}</div>
+            ${item.detail ? `<div style="font-size:13px;color:#475569;margin-top:4px;line-height:1.5">${escapeHtml(item.detail)}</div>` : ""}
             <div style="margin-top:6px">${getStatusBadge(item.status || "")}</div>
           </div>
 
