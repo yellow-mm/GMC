@@ -25,15 +25,16 @@
     .card-inprogress { background: #dbeafe; } .card-onhold { background: #fef3c7; } .card-completed { background: #dcfce7; }
     .dashboard-title { font-size: 13px; font-weight: bold; color: #475569; margin-bottom: 8px; }
     .dashboard-number { font-size: 30px; font-weight: bold; color: #1e40af; }
-    .table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #e5e7eb; border-radius: 16px; }
+    .table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 16px; }
     table { width: 100%; min-width: 1100px; border-collapse: collapse; }
-    th, td { padding: 12px; border-bottom: 1px solid #e5e7eb; text-align: left; font-size: 14px; vertical-align: top; }
-    th { background: #eff6ff; color: #1e3a8a; font-weight: bold; white-space: nowrap; }
+    th, td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; text-align: left; font-size: 14px; vertical-align: middle; }
+    th { background: #f8fafc; color: #475569; font-weight: 600; white-space: nowrap; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 2px solid #e2e8f0; }
     tr:last-child td { border-bottom: none; }
-    tr:nth-child(even) td { background: #f9fafb; }
-    tr.due-today td { background: #fff7ed !important; border-left: 3px solid #f97316; }
-    tr.due-soon td  { background: #fefce8 !important; border-left: 3px solid #eab308; }
-    tr.overdue td   { background: #fef2f2 !important; border-left: 3px solid #ef4444; }
+    tr:hover td { background: #f8fafc; }
+    tr.due-today td { border-left: 4px solid #f97316; }
+    tr.due-soon td  { border-left: 4px solid #eab308; }
+    tr.overdue td   { border-left: 4px solid #ef4444; }
+    tr td:first-child { color: #94a3b8; font-size: 13px; }
     .due-badge { display: inline-block; padding: 4px 8px; border-radius: 8px; font-size: 12px; font-weight: bold; white-space: nowrap; margin-top: 2px; }
     .due-badge-overdue { background: #fee2e2; color: #991b1b; } .due-badge-today { background: #ffedd5; color: #9a3412; }
     .due-badge-soon { background: #fef9c3; color: #713f12; } .due-badge-ok { background: #dcfce7; color: #166534; } .due-badge-none { background: #f1f5f9; color: #64748b; }
