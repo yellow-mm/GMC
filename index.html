@@ -77,7 +77,7 @@
         <p>Dashboard สำหรับติดตาม Project และงานค้าง</p>
       </div>
       <div class="header-actions">
-        <button class="notify-all-btn" onclick="notifyAllDue()">🔔 แจ้งเตือน LINE ทั้งหมด</button>
+        <button class="notify-all-btn" onclick="notifyAllDue()">🔔 Alert ทั้งหมด</button>
         <a class="add-btn" href="add.html">+ Add Project</a>
       </div>
     </div>
@@ -177,7 +177,7 @@
 
       try {
         await sendLineMessage(buildMessage(item, hoursLeft));
-        alert(`✅ ส่งแจ้งเตือน LINE สำเร็จ!\n${item.projectName}`);
+        alert(`✅ ส่ง Alert สำเร็จ!\n${item.projectName}`);
       } catch (err) {
         alert("❌ ส่งแจ้งเตือนไม่สำเร็จ:\n" + err.message);
       } finally {
@@ -195,17 +195,17 @@
       });
 
       if (dueItems.length === 0) { alert("ไม่มี Project ที่ถึงเกณฑ์แจ้งเตือนในขณะนี้"); return; }
-      if (!confirm(`จะส่งแจ้งเตือน LINE สำหรับ ${dueItems.length} Project ใช่ไหม?`)) return;
+      if (!confirm(`จะส่ง Alert สำหรับ ${dueItems.length} Project ใช่ไหม?`)) return;
 
-      setStatus("กำลังส่งแจ้งเตือน LINE...");
+      setStatus("กำลังส่ง Alert...");
       let success = 0;
       for (const item of dueItems) {
         const h = (new Date(item.dueDate) - now) / 3600000;
         try { await sendLineMessage(buildMessage(item, h)); success++; }
         catch (e) { console.error("notify failed:", item.projectName, e); }
       }
-      setStatus(`ส่งแจ้งเตือน LINE สำเร็จ ${success}/${dueItems.length} รายการ`);
-      alert(`✅ ส่งแจ้งเตือน LINE สำเร็จ ${success}/${dueItems.length} รายการ`);
+      setStatus(`ส่ง Alert สำเร็จ ${success}/${dueItems.length} รายการ`);
+      alert(`✅ ส่ง Alert สำเร็จ ${success}/${dueItems.length} รายการ`);
     };
 
     // ── Auto-notify เมื่อเปิดหน้า ─────────────────────────────────────
@@ -311,7 +311,7 @@
             <td style="white-space:nowrap">${escapeHtml(item.updatedTimeText||"")}</td>
             <td style="white-space:nowrap">
               <a class="small-link edit-btn" href="add.html?id=${item.id}">✏️ Edit</a>
-              <button id="line-btn-${item.id}" class="line-btn" onclick="sendLineNotifyForProject('${item.id}')">🔔 LINE</button>
+              <button id="line-btn-${item.id}" class="line-btn" onclick="sendLineNotifyForProject('${item.id}')">🔔 Alert</button>
               <button class="delete-btn" onclick="deleteProject('${item.id}')">🗑️ Delete</button>
             </td>
           </tr>`;
