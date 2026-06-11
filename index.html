@@ -6,66 +6,233 @@
   <title>Project Tracker Dashboard</title>
   <style>
     * { box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; background: #f7f7fb; margin: 0; padding: 20px; color: #1f2937; }
-    .container { width: 100%; max-width: 1300px; margin: auto; background: #fff; padding: 24px; border-radius: 18px; box-shadow: 0 6px 18px rgba(15,23,42,0.06); }
-    .header { background: linear-gradient(135deg, #c7d2fe, #bfdbfe); border-radius: 18px; padding: 22px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
-    .header-title h1 { margin: 0; font-size: 28px; color: #1e3a8a; }
-    .header-title p  { margin: 6px 0 0 0; color: #475569; font-size: 14px; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      margin: 0;
+      padding: 20px;
+      color: #1f2937;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1300px;
+      margin: auto;
+      background: #fff;
+      padding: 24px;
+      border-radius: 18px;
+      box-shadow: 0 4px 20px rgba(15,23,42,0.07);
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #c7d2fe, #bfdbfe);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .header-title h1 { margin: 0; font-size: 26px; color: #1e3a8a; }
+    .header-title p  { margin: 4px 0 0 0; color: #475569; font-size: 14px; }
     .header-actions  { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    .add-btn { text-decoration: none; background: #2563eb; color: #fff; padding: 12px 18px; border-radius: 10px; font-weight: bold; font-size: 14px; display: inline-block; }
-    .notify-all-btn { background: #06c755; color: #fff; border: none; padding: 12px 18px; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; }
-    .add-btn:hover, .notify-all-btn:hover { opacity: 0.9; }
+
+    .add-btn {
+      text-decoration: none;
+      background: #2563eb;
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 14px;
+      display: inline-block;
+    }
+    .notify-all-btn {
+      background: #06c755;
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .add-btn:hover, .notify-all-btn:hover { opacity: 0.88; }
+
+    /* ── Section ── */
     .section { margin-bottom: 28px; }
-    .section-title { font-size: 18px; font-weight: bold; color: #1e40af; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #dbeafe; }
-    .dashboard-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
-    .dashboard-card { border: 1px solid #e5e7eb; border-radius: 16px; padding: 16px; cursor: pointer; text-align: center; background: #fff; transition: 0.15s ease; }
-    .dashboard-card:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(15,23,42,0.08); }
+    .section-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #1e40af;
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e0e7ff;
+    }
+
+    /* ── Dashboard cards ── */
+    .dashboard-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+    .dashboard-card {
+      border: 1.5px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 16px;
+      cursor: pointer;
+      text-align: center;
+      background: #fff;
+      transition: 0.15s ease;
+    }
+    .dashboard-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(15,23,42,0.09); }
     .dashboard-card.active { border-color: #2563eb; background: #eff6ff; }
-    .card-all { background: #f8fafc; } .card-not-start { background: #f3f4f6; }
-    .card-inprogress { background: #dbeafe; } .card-onhold { background: #fef3c7; } .card-completed { background: #dcfce7; }
-    .dashboard-title { font-size: 13px; font-weight: bold; color: #475569; margin-bottom: 8px; }
-    .dashboard-number { font-size: 30px; font-weight: bold; color: #1e40af; }
-    .table-wrapper { width: 100%; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 16px; }
-    table { width: 100%; min-width: 1100px; border-collapse: collapse; }
-    th, td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; text-align: left; font-size: 14px; vertical-align: middle; }
-    th { background: #f8fafc; color: #475569; font-weight: 600; white-space: nowrap; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 2px solid #e2e8f0; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #f8fafc; }
-    tr.due-today td { border-left: 4px solid #f97316; }
-    tr.due-soon td  { border-left: 4px solid #eab308; }
-    tr.overdue td   { border-left: 4px solid #ef4444; }
-    tr td:first-child { color: #94a3b8; font-size: 13px; }
-    .due-badge { display: inline-block; padding: 4px 8px; border-radius: 8px; font-size: 12px; font-weight: bold; white-space: nowrap; margin-top: 2px; }
-    .due-badge-overdue { background: #fee2e2; color: #991b1b; } .due-badge-today { background: #ffedd5; color: #9a3412; }
-    .due-badge-soon { background: #fef9c3; color: #713f12; } .due-badge-ok { background: #dcfce7; color: #166534; } .due-badge-none { background: #f1f5f9; color: #64748b; }
-    .status-badge { display: inline-block; padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight: bold; white-space: nowrap; }
-    .status-not-start { background: #e5e7eb; color: #374151; } .status-inprogress { background: #dbeafe; color: #1e40af; }
-    .status-onhold { background: #fef3c7; color: #92400e; } .status-completed { background: #dcfce7; color: #166534; }
-    .comment-list { max-width: 320px; }
-    .comment-item { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 10px; padding: 8px; margin-bottom: 8px; font-size: 13px; }
-    .comment-time { display: block; color: #64748b; font-size: 11px; margin-top: 4px; }
+    .card-all        { background: #f8fafc; }
+    .card-not-start  { background: #f3f4f6; }
+    .card-inprogress { background: #dbeafe; }
+    .card-onhold     { background: #fef3c7; }
+    .card-completed  { background: #dcfce7; }
+    .dashboard-title  { font-size: 12px; font-weight: bold; color: #64748b; margin-bottom: 6px; }
+    .dashboard-number { font-size: 28px; font-weight: bold; color: #1e40af; }
+
+    /* ── Project Cards ── */
+    .project-list { display: flex; flex-direction: column; gap: 12px; }
+
+    .project-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 16px 20px;
+      display: grid;
+      grid-template-columns: 2fr 1.5fr 1fr 1.2fr 1.8fr 1fr;
+      gap: 16px;
+      align-items: start;
+      transition: box-shadow 0.15s ease;
+    }
+    .project-card:hover { box-shadow: 0 4px 16px rgba(15,23,42,0.08); }
+
+    /* urgency — subtle top border only */
+    .project-card.overdue  { border-top: 3px solid #ef4444; }
+    .project-card.due-today { border-top: 3px solid #f97316; }
+    .project-card.due-soon  { border-top: 3px solid #eab308; }
+
+    .pc-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+    }
+
+    .pc-value { font-size: 14px; color: #1f2937; }
+    .pc-value.large { font-size: 15px; font-weight: 600; color: #1e3a8a; }
+
+    /* action column */
+    .pc-actions { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; justify-content: flex-start; }
+
+    /* comment section inside card */
+    .pc-comments { grid-column: 1 / -1; border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: 4px; }
+    .pc-comments-header { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+
+    .comment-item {
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: #374151;
+    }
+    .comment-time   { display: block; color: #94a3b8; font-size: 11px; margin-top: 3px; }
     .comment-edited { display: block; color: #0f766e; font-size: 11px; margin-top: 2px; }
-    .comment-action-row { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
-    textarea { width: 100%; min-height: 60px; padding: 9px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: Arial, sans-serif; font-size: 13px; resize: vertical; }
-    button, .small-link { border: none; border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: bold; cursor: pointer; color: #fff; text-decoration: none; display: inline-block; margin-bottom: 6px; }
-    .edit-btn { background: #f59e0b; } .delete-btn { background: #ef4444; }
-    .comment-btn { background: #22c55e; margin-top: 8px; }
-    .comment-edit-btn { background: #f59e0b; padding: 6px 10px; font-size: 11px; }
-    .comment-delete-btn { background: #ef4444; padding: 6px 10px; font-size: 11px; }
-    .line-btn { background: #06c755; } .line-btn:disabled { background: #a7f3d0; cursor: not-allowed; }
-    button:hover, .small-link:hover { opacity: 0.9; }
-    .empty-message { text-align: center; color: #64748b; padding: 20px; }
-    .status-message { margin-top: 12px; color: #64748b; font-size: 14px; }
-    .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; margin-bottom: 10px; }
+    .comment-action-row { display: flex; gap: 5px; margin-top: 5px; }
+
+    .comment-input-row { display: flex; gap: 8px; margin-top: 8px; align-items: flex-end; }
+    .comment-input-row textarea {
+      flex: 1;
+      min-height: 50px;
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: Arial, sans-serif;
+      resize: vertical;
+    }
+
+    /* badges */
+    .status-badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    .status-not-start  { background: #f1f5f9; color: #475569; }
+    .status-inprogress { background: #dbeafe; color: #1e40af; }
+    .status-onhold     { background: #fef3c7; color: #92400e; }
+    .status-completed  { background: #dcfce7; color: #166534; }
+
+    .due-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+      margin-top: 3px;
+    }
+    .due-badge-overdue { background: #fee2e2; color: #991b1b; }
+    .due-badge-today   { background: #ffedd5; color: #9a3412; }
+    .due-badge-soon    { background: #fef9c3; color: #713f12; }
+    .due-badge-ok      { background: #dcfce7; color: #166534; }
+    .due-badge-none    { background: #f1f5f9; color: #64748b; }
+
+    /* buttons */
+    button, .small-link {
+      border: none;
+      border-radius: 7px;
+      padding: 7px 12px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #fff;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .edit-btn           { background: #f59e0b; }
+    .delete-btn         { background: #ef4444; }
+    .alert-btn          { background: #6366f1; }
+    .comment-btn        { background: #22c55e; padding: 7px 14px; white-space: nowrap; }
+    .comment-edit-btn   { background: #f59e0b; padding: 5px 9px; font-size: 11px; }
+    .comment-delete-btn { background: #ef4444; padding: 5px 9px; font-size: 11px; }
+    button:hover, .small-link:hover { opacity: 0.88; }
+
+    .empty-message  { text-align: center; color: #94a3b8; padding: 40px 20px; font-size: 15px; }
+    .status-message { margin-top: 10px; color: #64748b; font-size: 13px; }
+
+    /* legend */
+    .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; margin-bottom: 12px; color: #64748b; }
     .legend-item { display: flex; align-items: center; gap: 5px; }
-    .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .legend-red { background: #ef4444; } .legend-orange { background: #f97316; } .legend-yellow { background: #eab308; }
-    @media (max-width: 900px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } }
+    .legend-dot  { width: 10px; height: 3px; border-radius: 2px; }
+    .legend-red    { background: #ef4444; }
+    .legend-yellow { background: #eab308; }
+
+    @media (max-width: 1024px) {
+      .project-card { grid-template-columns: 1fr 1fr 1fr; }
+      .pc-comments  { grid-column: 1 / -1; }
+    }
+    @media (max-width: 900px) { .dashboard-grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 768px) {
-      body { padding: 12px; } .container { padding: 16px; border-radius: 14px; }
-      .header { padding: 18px; } .header-title h1 { font-size: 22px; }
+      body { padding: 12px; }
+      .container { padding: 14px; }
+      .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+      .project-card { grid-template-columns: 1fr 1fr; }
       .add-btn, .notify-all-btn { width: 100%; text-align: center; }
-      .dashboard-grid { grid-template-columns: 1fr; } table { min-width: 1000px; }
+    }
+    @media (max-width: 480px) {
+      .project-card { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -83,47 +250,46 @@
       </div>
     </div>
 
+    <!-- Dashboard -->
     <div class="section">
       <div class="section-title">📊 Dashboard</div>
       <div class="dashboard-grid">
         <div class="dashboard-card card-all active" onclick="setFilter('All')" id="card-All">
-          <div class="dashboard-title">All</div><div class="dashboard-number" id="count-All">0</div>
+          <div class="dashboard-title">All</div>
+          <div class="dashboard-number" id="count-All">0</div>
         </div>
         <div class="dashboard-card card-not-start" onclick="setFilter('Not Start')" id="card-Not Start">
-          <div class="dashboard-title">Not Start</div><div class="dashboard-number" id="count-Not Start">0</div>
+          <div class="dashboard-title">Not Start</div>
+          <div class="dashboard-number" id="count-Not Start">0</div>
         </div>
         <div class="dashboard-card card-inprogress" onclick="setFilter('Inprogress')" id="card-Inprogress">
-          <div class="dashboard-title">Inprogress</div><div class="dashboard-number" id="count-Inprogress">0</div>
+          <div class="dashboard-title">Inprogress</div>
+          <div class="dashboard-number" id="count-Inprogress">0</div>
         </div>
         <div class="dashboard-card card-onhold" onclick="setFilter('Onhold')" id="card-Onhold">
-          <div class="dashboard-title">Onhold</div><div class="dashboard-number" id="count-Onhold">0</div>
+          <div class="dashboard-title">Onhold</div>
+          <div class="dashboard-number" id="count-Onhold">0</div>
         </div>
         <div class="dashboard-card card-completed" onclick="setFilter('Completed')" id="card-Completed">
-          <div class="dashboard-title">Completed</div><div class="dashboard-number" id="count-Completed">0</div>
+          <div class="dashboard-title">Completed</div>
+          <div class="dashboard-number" id="count-Completed">0</div>
         </div>
       </div>
     </div>
 
+    <!-- Project List -->
     <div class="section">
       <div class="section-title">📋 Project List</div>
+
       <div class="legend">
         <div class="legend-item"><div class="legend-dot legend-red"></div> เลยกำหนดแล้ว</div>
-        <div class="legend-item"><div class="legend-dot legend-orange"></div> ถึงกำหนดวันนี้ (≤8 ชม.)</div>
         <div class="legend-item"><div class="legend-dot legend-yellow"></div> ใกล้ถึงกำหนด (≤24 ชม.)</div>
       </div>
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>No.</th><th>Engineer</th><th>Customer</th><th>Project Name</th>
-              <th>Status</th><th>📅 Due Date</th><th>Comments</th><th>Updated</th><th>Action</th>
-            </tr>
-          </thead>
-          <tbody id="projectTable">
-            <tr><td colspan="9" class="empty-message">Loading data...</td></tr>
-          </tbody>
-        </table>
+
+      <div class="project-list" id="projectList">
+        <div class="empty-message">Loading data...</div>
       </div>
+
       <div id="statusMessage" class="status-message"></div>
     </div>
 
@@ -138,21 +304,17 @@
     let projects = [];
     let currentFilter = "All";
 
-    // ── ส่งข้อความ LINE ผ่าน Netlify Function ──────────────────────────
+    // ── LINE / Teams Alert ────────────────────────────────────────────
     async function sendLineMessage(message) {
       const res = await fetch("/.netlify/functions/line-notify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message })
       });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`LINE API error ${res.status}: ${text}`);
-      }
+      if (!res.ok) throw new Error(`Alert error ${res.status}`);
       return true;
     }
 
-    // ── สร้างข้อความแจ้งเตือน ────────────────────────────────────────
     function buildMessage(item, hoursLeft) {
       const dueTxt  = item.dueDateText || "-";
       const urgency = hoursLeft <= 0  ? "⚠️ เลยกำหนดแล้ว"
@@ -162,96 +324,87 @@
       const timeText = hoursLeft > 0
         ? `อีก ${Math.round(hoursLeft)} ชม.`
         : `เลยกำหนดมาแล้ว ${Math.abs(Math.round(hoursLeft))} ชม.`;
+      const engineers = Array.isArray(item.engineers) && item.engineers.length > 0
+        ? item.engineers.join(", ") : (item.engineerName || "-");
 
-      return `${urgency}\n📋 Project: ${item.projectName}\n👷 Engineer: ${item.engineerName}\n🏢 Customer: ${item.customer}\n📊 Status: ${item.status}\n📅 Due: ${dueTxt}\n⏰ ${timeText}`;
+      return `${urgency}\n📋 Project: ${item.projectName}\n👷 Engineer: ${engineers}\n🏢 Customer: ${item.customer}\n📊 Status: ${item.status}\n📅 Due: ${dueTxt}\n⏰ ${timeText}`;
     }
 
-    // ── ส่งแจ้งเตือนสำหรับ Project เดียว ────────────────────────────
-    window.sendLineNotifyForProject = async function(projectId) {
+    window.sendAlertForProject = async function(projectId) {
       const item = projects.find(p => p.id === projectId);
       if (!item) return;
-
-      const btn = document.getElementById(`line-btn-${projectId}`);
+      const btn = document.getElementById(`alert-btn-${projectId}`);
       if (btn) { btn.disabled = true; btn.innerText = "กำลังส่ง..."; }
-
       const hoursLeft = item.dueDate ? (new Date(item.dueDate) - new Date()) / 3600000 : 0;
-
       try {
         await sendLineMessage(buildMessage(item, hoursLeft));
         alert(`✅ ส่ง Alert สำเร็จ!\n${item.projectName}`);
       } catch (err) {
-        alert("❌ ส่งแจ้งเตือนไม่สำเร็จ:\n" + err.message);
+        alert("❌ ส่ง Alert ไม่สำเร็จ:\n" + err.message);
       } finally {
-        if (btn) { btn.disabled = false; btn.innerText = "🔔 LINE"; }
+        if (btn) { btn.disabled = false; btn.innerText = "🔔 Alert"; }
       }
     };
 
-    // ── ส่งแจ้งเตือนทุก Project ที่ถึงเกณฑ์ ─────────────────────────
     window.notifyAllDue = async function() {
       const now = new Date();
       const dueItems = projects.filter(item => {
         if (!item.dueDate || item.status === "Completed") return false;
-        const h = (new Date(item.dueDate) - now) / 3600000;
-        return h <= (item.notifyBeforeHours || 24);
+        return (new Date(item.dueDate) - now) / 3600000 <= (item.notifyBeforeHours || 24);
       });
-
-      if (dueItems.length === 0) { alert("ไม่มี Project ที่ถึงเกณฑ์แจ้งเตือนในขณะนี้"); return; }
+      if (dueItems.length === 0) { alert("ไม่มี Project ที่ถึงเกณฑ์ Alert ในขณะนี้"); return; }
       if (!confirm(`จะส่ง Alert สำหรับ ${dueItems.length} Project ใช่ไหม?`)) return;
-
       setStatus("กำลังส่ง Alert...");
       let success = 0;
       for (const item of dueItems) {
         const h = (new Date(item.dueDate) - now) / 3600000;
         try { await sendLineMessage(buildMessage(item, h)); success++; }
-        catch (e) { console.error("notify failed:", item.projectName, e); }
+        catch (e) { console.error("alert failed:", item.projectName, e); }
       }
       setStatus(`ส่ง Alert สำเร็จ ${success}/${dueItems.length} รายการ`);
       alert(`✅ ส่ง Alert สำเร็จ ${success}/${dueItems.length} รายการ`);
     };
 
-    // ── Auto-notify เมื่อเปิดหน้า ─────────────────────────────────────
     function autoCheckNotifications() {
       const now = new Date();
       projects.forEach(async item => {
         if (!item.dueDate || item.status === "Completed" || item.notified) return;
         const h = (new Date(item.dueDate) - now) / 3600000;
-        const threshold = item.notifyBeforeHours || 24;
-        if (h <= threshold && h > -72) {
+        if (h <= (item.notifyBeforeHours || 24) && h > -72) {
           try {
             await sendLineMessage(buildMessage(item, h));
             await updateDoc(doc(db, collectionName, item.id), { notified: true });
-          } catch (e) { console.warn("Auto-notify failed:", item.projectName); }
+          } catch (e) { console.warn("auto-alert failed:", item.projectName); }
         }
       });
     }
 
-    // ── โหลด Projects ─────────────────────────────────────────────────
+    // ── Load ──────────────────────────────────────────────────────────
     async function loadProjects() {
-      setStatus("Loading projects...");
+      setStatus("Loading...");
       try {
         const snap = await getDocs(collection(db, collectionName));
         projects = [];
         snap.forEach(d => projects.push({ id: d.id, ...d.data() }));
-
         projects.sort((a, b) => {
           const aH = !!a.dueDate, bH = !!b.dueDate;
           if (aH && bH) return new Date(a.dueDate) - new Date(b.dueDate);
           if (aH) return -1; if (bH) return 1;
           return (b.updatedTimeText || "").localeCompare(a.updatedTimeText || "");
         });
-
         updateDashboard();
-        renderTable();
-        setStatus("Data loaded successfully.");
+        renderList();
+        setStatus("");
         setTimeout(autoCheckNotifications, 1000);
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+        console.error(err);
         setStatus("Cannot load data from Firebase.");
-        document.getElementById("projectTable").innerHTML =
-          `<tr><td colspan="9" class="empty-message">Cannot load data from Firebase</td></tr>`;
+        document.getElementById("projectList").innerHTML =
+          `<div class="empty-message">Cannot load data from Firebase</div>`;
       }
     }
 
+    // ── Urgency ───────────────────────────────────────────────────────
     function getUrgencyClass(dueDate, status) {
       if (!dueDate || status === "Completed") return "";
       const h = (new Date(dueDate) - new Date()) / 3600000;
@@ -260,33 +413,56 @@
 
     function getDueBadge(dueDate, dueDateText, status) {
       if (!dueDate) return `<span class="due-badge due-badge-none">ไม่ระบุ</span>`;
-      const displayDate = dueDateText || new Date(dueDate).toLocaleString("th-TH", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" });
-      if (status === "Completed") return `<div style="font-size:13px;color:#374151;margin-bottom:4px">${escapeHtml(displayDate)}</div><span class="due-badge due-badge-ok">✅ เสร็จแล้ว</span>`;
+      const display = dueDateText || new Date(dueDate).toLocaleString("th-TH", {
+        year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit"
+      });
+      if (status === "Completed") return `
+        <div style="font-size:13px;color:#374151">${escapeHtml(display)}</div>
+        <span class="due-badge due-badge-ok">✅ เสร็จแล้ว</span>`;
       const h = (new Date(dueDate) - new Date()) / 3600000;
       let cls, label;
-      if (h < 0)        { cls = "due-badge-overdue"; label = `⛔ เลย ${Math.abs(Math.round(h))} ชม.`; }
-      else if (h <= 8)  { cls = "due-badge-today";   label = `🔴 อีก ${Math.round(h)} ชม.`; }
-      else if (h <= 24) { cls = "due-badge-soon";    label = `🟡 อีก ${Math.round(h)} ชม.`; }
-      else              { cls = "due-badge-ok";      label = `🟢 อีก ${Math.floor(h/24)} วัน`; }
-      return `<div style="font-size:13px;color:#374151;margin-bottom:4px">${escapeHtml(displayDate)}</div><span class="due-badge ${cls}">${label}</span>`;
+      if (h < 0)        { cls="due-badge-overdue"; label=`⛔ เลย ${Math.abs(Math.round(h))} ชม.`; }
+      else if (h <= 8)  { cls="due-badge-today";   label=`🔴 อีก ${Math.round(h)} ชม.`; }
+      else if (h <= 24) { cls="due-badge-soon";    label=`🟡 อีก ${Math.round(h)} ชม.`; }
+      else              { cls="due-badge-ok";      label=`🟢 อีก ${Math.floor(h/24)} วัน`; }
+      return `
+        <div style="font-size:13px;color:#374151;margin-bottom:3px">${escapeHtml(display)}</div>
+        <span class="due-badge ${cls}">${label}</span>`;
     }
 
-    function renderTable() {
-      const tableBody = document.getElementById("projectTable");
-      tableBody.innerHTML = "";
-      const list = currentFilter === "All" ? projects : projects.filter(p => p.status === currentFilter);
-      if (list.length === 0) { tableBody.innerHTML = `<tr><td colspan="9" class="empty-message">ไม่พบข้อมูลในสถานะนี้</td></tr>`; return; }
+    // ── Render card list ──────────────────────────────────────────────
+    function renderList() {
+      const container = document.getElementById("projectList");
+      container.innerHTML = "";
+
+      const list = currentFilter === "All"
+        ? projects
+        : projects.filter(p => p.status === currentFilter);
+
+      if (list.length === 0) {
+        container.innerHTML = `<div class="empty-message">ไม่พบข้อมูลในสถานะนี้</div>`;
+        return;
+      }
 
       list.forEach((item, index) => {
         const comments = Array.isArray(item.comments) ? item.comments : [];
         const cid      = `comment-${item.id}`;
         const urg      = getUrgencyClass(item.dueDate, item.status);
 
+        const engineers = Array.isArray(item.engineers) && item.engineers.length > 0
+          ? item.engineers
+          : (item.engineerName ? item.engineerName.split(",").map(s => s.trim()) : ["-"]);
+
+        const engineerHtml = engineers.map(n =>
+          `<span style="display:inline-block;background:#eff6ff;color:#2563eb;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600;margin:2px 3px 2px 0">${escapeHtml(n)}</span>`
+        ).join("");
+
         const commentHtml = comments.length === 0
-          ? `<div class="empty-message" style="padding:6px">No comment</div>`
+          ? `<div style="color:#94a3b8;font-size:13px;padding:4px 0">No comment</div>`
           : comments.map((c, ci) => `
-              <div class="comment-item">${escapeHtml(c.text||"")}
-                <span class="comment-time">${escapeHtml(c.createdAtText||"")}</span>
+              <div class="comment-item">
+                ${escapeHtml(c.text || "")}
+                <span class="comment-time">${escapeHtml(c.createdAtText || "")}</span>
                 ${c.editedAtText ? `<span class="comment-edited">Edited: ${escapeHtml(c.editedAtText)}</span>` : ""}
                 <div class="comment-action-row">
                   <button class="comment-edit-btn" onclick="editComment('${item.id}',${ci})">Edit</button>
@@ -294,31 +470,58 @@
                 </div>
               </div>`).join("");
 
-        tableBody.innerHTML += `
-          <tr class="${urg}">
-            <td>${index+1}</td>
-            <td>${getEngineerBadges(item)}</td>
-            <td>${escapeHtml(item.customer||"")}</td>
-            <td>${escapeHtml(item.projectName||"")}</td>
-            <td>${getStatusBadge(item.status||"")}</td>
-            <td style="min-width:160px">${getDueBadge(item.dueDate, item.dueDateText, item.status)}</td>
-            <td>
-              <div class="comment-list">
-                ${commentHtml}
-                <textarea id="${cid}" placeholder="Add comment..."></textarea>
-                <button class="comment-btn" onclick="addComment('${item.id}','${cid}')">Add Comment</button>
-              </div>
-            </td>
-            <td style="white-space:nowrap">${escapeHtml(item.updatedTimeText||"")}</td>
-            <td style="white-space:nowrap">
-              <a class="small-link edit-btn" href="add.html?id=${item.id}">✏️ Edit</a>
-              <button id="line-btn-${item.id}" class="line-btn" onclick="sendLineNotifyForProject('${item.id}')">🔔 Alert</button>
-              <button class="delete-btn" onclick="deleteProject('${item.id}')">🗑️ Delete</button>
-            </td>
-          </tr>`;
+        const card = document.createElement("div");
+        card.className = `project-card ${urg}`;
+        card.innerHTML = `
+          <!-- Col 1: Project -->
+          <div>
+            <div class="pc-label">Project</div>
+            <div class="pc-value large">${escapeHtml(item.projectName || "")}</div>
+            <div style="margin-top:6px">${getStatusBadge(item.status || "")}</div>
+          </div>
+
+          <!-- Col 2: Engineer / Customer -->
+          <div>
+            <div class="pc-label">Engineer</div>
+            <div class="pc-value" style="margin-bottom:10px">${engineerHtml}</div>
+            <div class="pc-label">Customer</div>
+            <div class="pc-value">${escapeHtml(item.customer || "")}</div>
+          </div>
+
+          <!-- Col 3: Due Date -->
+          <div>
+            <div class="pc-label">Due Date</div>
+            <div class="pc-value">${getDueBadge(item.dueDate, item.dueDateText, item.status)}</div>
+          </div>
+
+          <!-- Col 4: Updated -->
+          <div>
+            <div class="pc-label">Updated</div>
+            <div class="pc-value" style="font-size:13px;color:#64748b">${escapeHtml(item.updatedTimeText || "")}</div>
+          </div>
+
+          <!-- Col 5: Comments -->
+          <div>
+            <div class="pc-label">Comments</div>
+            ${commentHtml}
+            <div class="comment-input-row">
+              <textarea id="${cid}" placeholder="Add comment..."></textarea>
+              <button class="comment-btn" onclick="addComment('${item.id}','${cid}')">+ Add</button>
+            </div>
+          </div>
+
+          <!-- Col 6: Actions -->
+          <div class="pc-actions">
+            <a class="small-link edit-btn" href="add.html?id=${item.id}">✏️ Edit</a>
+            <button id="alert-btn-${item.id}" class="alert-btn" onclick="sendAlertForProject('${item.id}')">🔔 Alert</button>
+            <button class="delete-btn" onclick="deleteProject('${item.id}')">🗑️ Delete</button>
+          </div>
+        `;
+        container.appendChild(card);
       });
     }
 
+    // ── Dashboard ─────────────────────────────────────────────────────
     function updateDashboard() {
       ["All","Not Start","Inprogress","Onhold","Completed"].forEach(s => {
         const count = s === "All" ? projects.length : projects.filter(p => p.status === s).length;
@@ -330,12 +533,15 @@
     function setFilter(status) {
       currentFilter = status;
       ["All","Not Start","Inprogress","Onhold","Completed"].forEach(s => {
-        const c = document.getElementById(`card-${s}`); if (c) c.classList.remove("active");
+        const c = document.getElementById(`card-${s}`);
+        if (c) c.classList.remove("active");
       });
-      const a = document.getElementById(`card-${status}`); if (a) a.classList.add("active");
-      renderTable();
+      const a = document.getElementById(`card-${status}`);
+      if (a) a.classList.add("active");
+      renderList();
     }
 
+    // ── Comments ──────────────────────────────────────────────────────
     async function addComment(projectId, textareaId) {
       const textarea = document.getElementById(textareaId);
       const text     = textarea.value.trim();
@@ -377,19 +583,13 @@
 
     async function deleteProject(projectId) {
       if (!confirm("ต้องการลบ Project นี้ใช่ไหม?")) return;
-      try { await deleteDoc(doc(db, collectionName, projectId)); setStatus("Project deleted."); await loadProjects(); }
-      catch (e) { alert("ไม่สามารถลบ Project ได้"); }
+      try {
+        await deleteDoc(doc(db, collectionName, projectId));
+        setStatus("Project deleted."); await loadProjects();
+      } catch (e) { alert("ไม่สามารถลบ Project ได้"); }
     }
 
-    function getEngineerBadges(item) {
-      const list = Array.isArray(item.engineers) && item.engineers.length > 0
-        ? item.engineers
-        : (item.engineerName ? item.engineerName.split(",").map(s => s.trim()) : ["-"]);
-      return list.map(name =>
-        `<span style="display:inline-block;background:#dbeafe;color:#1e40af;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:bold;margin:2px 2px 2px 0;white-space:nowrap">${escapeHtml(name)}</span>`
-      ).join("");
-    }
-
+    // ── Helpers ───────────────────────────────────────────────────────
     function getStatusBadge(s) {
       const map = { "Not Start":"status-not-start", "Inprogress":"status-inprogress", "Onhold":"status-onhold", "Completed":"status-completed" };
       return `<span class="status-badge ${map[s]||''}">${escapeHtml(s)}</span>`;
@@ -405,8 +605,11 @@
       return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
     }
 
-    window.setFilter = setFilter; window.addComment = addComment;
-    window.editComment = editComment; window.deleteComment = deleteComment; window.deleteProject = deleteProject;
+    window.setFilter     = setFilter;
+    window.addComment    = addComment;
+    window.editComment   = editComment;
+    window.deleteComment = deleteComment;
+    window.deleteProject = deleteProject;
 
     loadProjects();
   </script>
