@@ -358,7 +358,7 @@
 
     // ── LINE / Teams Alert ────────────────────────────────────────────
     async function sendLineMessage(message) {
-      const res = await fetch("/.netlify/functions/line-notify", {
+      const res = await fetch("https://gmc-tracker.muttana-mm.workers.dev", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message })
