@@ -620,7 +620,7 @@
       const items = comments.map((c, ci) => {
         const isDone    = !!c.doneAt;
         const doneHtml  = isDone
-          ? `<span class="comment-done-badge">✅ Done</span><span class="comment-done-date">Completed: ${escapeHtml(c.doneAt)}</span>`
+          ? `<span class="comment-done-badge">✅ Done</span>`
           : "";
         const editedHtml = c.editedAtText
           ? `<span class="comment-edited">Edited: ${escapeHtml(c.editedAtText)}</span>`
