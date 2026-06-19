@@ -335,12 +335,12 @@
 
     <div class="header">
       <div class="header-title">
-        <h1>Project Tracker</h1>
-        <p>Dashboard for tracking projects and pending tasks</p>
+        <h1>Operations Tracker</h1>
+        <p>Dashboard for tracking work and pending tasks</p>
       </div>
       <div class="header-actions">
         <button class="notify-all-btn" onclick="notifyAllDue()">🔔 Alert All</button>
-        <a class="add-btn" href="add.html">+ Add Project</a>
+        <a class="add-btn" href="add.html">+ Add Work</a>
       </div>
     </div>
 
@@ -373,7 +373,7 @@
 
     <!-- Project List -->
     <div class="section">
-      <div class="section-title">📋 Project List</div>
+      <div class="section-title">📋 Work List</div>
 
       <div class="legend">
         <div class="legend-item"><div class="legend-dot legend-red"></div> Overdue</div>
@@ -543,7 +543,7 @@
         card.innerHTML = `
           <!-- Col 1: Project -->
           <div>
-            <div class="pc-label">Project / Task / PM</div>
+            <div class="pc-label">Type of Work</div>
             ${item.projectType ? `<span style="display:inline-block;background:var(--blue-light);color:var(--navy);border:1px solid var(--blue-mid);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;margin-bottom:5px">${escapeHtml(item.projectType)}</span>` : ""}
             <div class="pc-value large">${escapeHtml(item.projectName || "")}</div>
             ${item.detail ? `<div class="pc-detail">${escapeHtml(item.detail)}</div>` : ""}
