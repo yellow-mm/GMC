@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -102,7 +102,7 @@
 
     <div class="header">
       <h1 id="pageTitle">Add Project</h1>
-      <p>เพิ่มหรือแก้ไขข้อมูล Project / งานค้าง</p>
+      <p>Add or edit project / task information</p>
     </div>
 
     <div class="card">
@@ -117,25 +117,25 @@
             type="text"
             id="engineerInput"
             class="engineer-input"
-            placeholder="พิมพ์ชื่อแล้วกด Enter หรือ ,"
+            placeholder="Type name then press Enter or ,"
           />
         </div>
-        <div class="hint-text">กด Enter หรือ , เพื่อเพิ่มชื่อ — เพิ่มได้หลายคน</div>
+        <div class="hint-text">Press Enter or , to add — multiple engineers allowed</div>
       </div>
 
       <div class="form-group">
         <label for="customer">Customer <span class="required">*</span></label>
-        <input type="text" id="customer" placeholder="เช่น PICO Thailand" />
+        <input type="text" id="customer" placeholder="e.g. PICO Thailand" />
       </div>
 
       <div class="form-group">
         <label for="projectName">Project / Task / PM <span class="required">*</span></label>
-        <input type="text" id="projectName" placeholder="เช่น Firewall Replacement / Install Switch / PM Server" />
+        <input type="text" id="projectName" placeholder="e.g. Firewall Replacement / Install Switch / PM Server" />
       </div>
 
       <div class="form-group">
-        <label for="detail">Detail <span class="hint">(รายละเอียดงาน — จะแสดงในการแจ้งเตือน)</span></label>
-        <textarea id="detail" style="min-height:80px" placeholder="เช่น ติดตั้ง Firewall PA-440 พร้อม Config Policy / ตรวจสอบ PM Server ชั้น 3"></textarea>
+        <label for="detail">Detail <span class="hint">(Job details — will appear in notifications)</span></label>
+        <textarea id="detail" style="min-height:80px" placeholder="e.g. Install Firewall PA-440 with Policy Config / Check PM Server 3rd Floor"></textarea>
       </div>
 
       <div class="form-group">
@@ -152,7 +152,7 @@
       <div class="section-label">📅 Schedule / Onsite Date</div>
 
       <div class="form-group">
-        <label for="dueDate">วันที่นัดหมาย / Onsite Date <span class="hint">(กำหนดเวลาที่ต้องทำงาน)</span></label>
+        <label for="dueDate">Onsite Date / Appointment <span class="hint">(scheduled work date &amp; time)</span></label>
         <div class="due-date-wrapper">
           <input type="datetime-local" id="dueDate" />
           <span class="due-date-icon">📅</span>
@@ -160,16 +160,16 @@
       </div>
 
       <div class="form-group">
-        <label for="notifyBeforeHours">แจ้งเตือนล่วงหน้า <span class="hint">(ชั่วโมงก่อนถึงกำหนด)</span></label>
+        <label for="notifyBeforeHours">Notify Before <span class="hint">(hours before due date)</span></label>
         <select id="notifyBeforeHours">
-          <option value="1">1 ชั่วโมง</option>
-          <option value="2">2 ชั่วโมง</option>
-          <option value="3">3 ชั่วโมง</option>
-          <option value="6">6 ชั่วโมง</option>
-          <option value="12">12 ชั่วโมง</option>
-          <option value="24" selected>24 ชั่วโมง (1 วัน)</option>
-          <option value="48">48 ชั่วโมง (2 วัน)</option>
-          <option value="72">72 ชั่วโมง (3 วัน)</option>
+          <option value="1">1 Hour</option>
+          <option value="2">2 Hours</option>
+          <option value="3">3 Hours</option>
+          <option value="6">6 Hours</option>
+          <option value="12">12 Hours</option>
+          <option value="24" selected>24 Hours (1 Day)</option>
+          <option value="48">48 Hours (2 Days)</option>
+          <option value="72">72 Hours (3 Days)</option>
         </select>
       </div>
 
@@ -177,7 +177,7 @@
 
       <div class="form-group">
         <label for="comment">Comment</label>
-        <textarea id="comment" placeholder="ใส่รายละเอียดงาน / งานค้าง / สิ่งที่ต้องติดตาม"></textarea>
+        <textarea id="comment" placeholder="Add job details / pending tasks / follow-up items"></textarea>
       </div>
 
       <div class="button-row">
@@ -260,7 +260,7 @@
       try {
         const docSnap = await getDoc(doc(db, collectionName, projectId));
         if (!docSnap.exists()) {
-          alert("ไม่พบ Project ที่ต้องการแก้ไข");
+          alert("Project not found.");
           window.location.href = "index.html";
           return;
         }
@@ -310,7 +310,7 @@
       const dueDateValue      = document.getElementById("dueDate").value;
 
       if (engineers.length === 0 || !customer || !projectName || !status) {
-        alert("กรุณากรอก Engineer Name อย่างน้อย 1 คน, Customer, Project Name และ Status ให้ครบถ้วน");
+        alert("Please fill in at least 1 Engineer Name, Customer, Project / Task / PM, and Status.");
         return;
       }
 
@@ -320,7 +320,7 @@
       const currentTime   = getCurrentTimeText();
       const dueDateISO    = dueDateValue ? new Date(dueDateValue).toISOString() : null;
       const dueDateText   = dueDateValue
-        ? new Date(dueDateValue).toLocaleString("th-TH", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" })
+        ? new Date(dueDateValue).toLocaleString("en-GB", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" })
         : null;
 
       // engineerName (string) = joined for backward compat display
@@ -358,7 +358,7 @@
         setTimeout(() => { window.location.href = "index.html"; }, 600);
       } catch (error) {
         console.error(error);
-        alert("ไม่สามารถบันทึกข้อมูลได้ กรุณาตรวจสอบ Firebase / Firestore Rules");
+        alert("Cannot save data. Please check Firebase / Firestore Rules.");
         setStatus("Error saving project.");
       } finally {
         saveButton.disabled = false;
@@ -366,7 +366,7 @@
     }
 
     function getCurrentTimeText() {
-      return new Date().toLocaleString("th-TH", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit" });
+      return new Date().toLocaleString("en-GB", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit" });
     }
 
     function setStatus(msg) { document.getElementById("statusMessage").innerText = msg; }

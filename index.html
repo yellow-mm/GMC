@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -294,10 +294,10 @@
     <div class="header">
       <div class="header-title">
         <h1>Project Tracker</h1>
-        <p>Dashboard สำหรับติดตาม Project และงานค้าง</p>
+        <p>Dashboard for tracking projects and pending tasks</p>
       </div>
       <div class="header-actions">
-        <button class="notify-all-btn" onclick="notifyAllDue()">🔔 Alert ทั้งหมด</button>
+        <button class="notify-all-btn" onclick="notifyAllDue()">🔔 Alert All</button>
         <a class="add-btn" href="add.html">+ Add Project</a>
       </div>
     </div>
@@ -334,8 +334,8 @@
       <div class="section-title">📋 Project List</div>
 
       <div class="legend">
-        <div class="legend-item"><div class="legend-dot legend-red"></div> เลยกำหนดแล้ว</div>
-        <div class="legend-item"><div class="legend-dot legend-yellow"></div> ใกล้ถึงกำหนด (≤24 ชม.)</div>
+        <div class="legend-item"><div class="legend-dot legend-red"></div> Overdue</div>
+        <div class="legend-item"><div class="legend-dot legend-yellow"></div> Due Soon (≤24 hrs)</div>
       </div>
 
       <div class="project-list" id="projectList">
@@ -391,9 +391,9 @@
       const hoursLeft = item.dueDate ? (new Date(item.dueDate) - new Date()) / 3600000 : 0;
       try {
         await sendLineMessage(buildMessage(item, hoursLeft));
-        alert(`✅ ส่ง Alert สำเร็จ!\n${item.projectName}`);
+        alert(`✅ Alert sent successfully!\n${item.projectName}`);
       } catch (err) {
-        alert("❌ ส่ง Alert ไม่สำเร็จ:\n" + err.message);
+        alert("❌ Failed to send alert:\n" + err.message);
       } finally {
         if (btn) { btn.disabled = false; btn.innerText = "🔔 Alert"; }
       }
@@ -405,17 +405,17 @@
         if (!item.dueDate || item.status === "Completed") return false;
         return (new Date(item.dueDate) - now) / 3600000 <= (item.notifyBeforeHours || 24);
       });
-      if (dueItems.length === 0) { alert("ไม่มี Project ที่ถึงเกณฑ์ Alert ในขณะนี้"); return; }
-      if (!confirm(`จะส่ง Alert สำหรับ ${dueItems.length} Project ใช่ไหม?`)) return;
-      setStatus("กำลังส่ง Alert...");
+      if (dueItems.length === 0) { alert("No projects are due for an alert at this time."); return; }
+      if (!confirm(`Send alert for ${dueItems.length} project(s)?`)) return;
+      setStatus("Sending alerts...");
       let success = 0;
       for (const item of dueItems) {
         const h = (new Date(item.dueDate) - now) / 3600000;
         try { await sendLineMessage(buildMessage(item, h)); success++; }
         catch (e) { console.error("alert failed:", item.projectName, e); }
       }
-      setStatus(`ส่ง Alert สำเร็จ ${success}/${dueItems.length} รายการ`);
-      alert(`✅ ส่ง Alert สำเร็จ ${success}/${dueItems.length} รายการ`);
+      setStatus(`Alert sent ${success}/${dueItems.length} successfully`);
+      alert(`✅ Alert sent ${success}/${dueItems.length} successfully`);
     };
 
     function autoCheckNotifications() {
@@ -466,18 +466,18 @@
 
     function getDueBadge(dueDate, dueDateText, status) {
       if (!dueDate) return `<span class="due-badge due-badge-none">ไม่ระบุ</span>`;
-      const display = dueDateText || new Date(dueDate).toLocaleString("th-TH", {
+      const display = dueDateText || new Date(dueDate).toLocaleString("en-GB", {
         year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit"
       });
       if (status === "Completed") return `
         <div style="font-size:12px;color:var(--text-sub)">${escapeHtml(display)}</div>
-        <span class="due-badge due-badge-ok">✅ เสร็จแล้ว</span>`;
+        <span class="due-badge due-badge-ok">✅ Completed</span>`;
       const h = (new Date(dueDate) - new Date()) / 3600000;
       let cls, label;
-      if (h < 0)        { cls="due-badge-overdue"; label=`⛔ เลย ${Math.abs(Math.round(h))} ชม.`; }
-      else if (h <= 8)  { cls="due-badge-today";   label=`🔴 อีก ${Math.round(h)} ชม.`; }
-      else if (h <= 24) { cls="due-badge-soon";    label=`🟡 อีก ${Math.round(h)} ชม.`; }
-      else              { cls="due-badge-ok";      label=`🟢 อีก ${Math.floor(h/24)} วัน`; }
+      if (h < 0)        { cls="due-badge-overdue"; label=`⛔ Overdue ${Math.abs(Math.round(h))} hrs`; }
+      else if (h <= 8)  { cls="due-badge-today";   label=`🔴 ${Math.round(h)} hrs left`; }
+      else if (h <= 24) { cls="due-badge-soon";    label=`🟡 ${Math.round(h)} hrs left`; }
+      else              { cls="due-badge-ok";      label=`🟢 ${Math.floor(h/24)} days left`; }
       return `
         <div style="font-size:13px;color:#374151;margin-bottom:3px">${escapeHtml(display)}</div>
         <span class="due-badge ${cls}">${label}</span>`;
@@ -511,7 +511,7 @@
         ).join("");
 
         const commentHtml = comments.length === 0
-          ? `<div style="color:var(--text-muted);font-size:13px;padding:4px 0">No comment</div>`
+          ? `<div style="color:var(--text-muted);font-size:13px;padding:4px 0">No comments yet</div>`
           : comments.map((c, ci) => `
               <div class="comment-item">
                 ${escapeHtml(c.text || "")}
@@ -599,48 +599,48 @@
     async function addComment(projectId, textareaId) {
       const textarea = document.getElementById(textareaId);
       const text     = textarea.value.trim();
-      if (!text) { alert("กรุณาใส่ Comment ก่อน"); return; }
+      if (!text) { alert("Please enter a comment first."); return; }
       const item = projects.find(p => p.id === projectId); if (!item) return;
       const now  = getCurrentTimeText();
       const updated = [...(Array.isArray(item.comments) ? item.comments : []), { text, createdAtText: now }];
       try {
         await updateDoc(doc(db, collectionName, projectId), { comments: updated, updatedTimeText: now, updatedAt: serverTimestamp() });
         textarea.value = ""; setStatus("Comment added."); await loadProjects();
-      } catch (e) { alert("ไม่สามารถเพิ่ม Comment ได้"); }
+      } catch (e) { alert("Failed to add comment."); }
     }
 
     async function editComment(projectId, ci) {
       const item = projects.find(p => p.id === projectId); if (!item) return;
       const comments = Array.isArray(item.comments) ? item.comments : [];
-      const newText  = prompt("แก้ไข Comment:", comments[ci]?.text || "");
+      const newText  = prompt("Edit comment:", comments[ci]?.text || "");
       if (newText === null) return;
-      const trimmed = newText.trim(); if (!trimmed) { alert("Comment ห้ามว่าง"); return; }
+      const trimmed = newText.trim(); if (!trimmed) { alert("Comment cannot be empty."); return; }
       const now     = getCurrentTimeText();
       const updated = comments.map((c, i) => i === ci ? { ...c, text: trimmed, editedAtText: now } : c);
       try {
         await updateDoc(doc(db, collectionName, projectId), { comments: updated, updatedTimeText: now, updatedAt: serverTimestamp() });
         setStatus("Comment updated."); await loadProjects();
-      } catch (e) { alert("ไม่สามารถแก้ไข Comment ได้"); }
+      } catch (e) { alert("Failed to edit comment."); }
     }
 
     async function deleteComment(projectId, ci) {
       const item = projects.find(p => p.id === projectId); if (!item) return;
-      if (!confirm("ต้องการลบ Comment นี้ใช่ไหม?")) return;
+      if (!confirm("Delete this comment?")) return;
       const comments = Array.isArray(item.comments) ? item.comments : [];
       const now      = getCurrentTimeText();
       const updated  = comments.filter((_, i) => i !== ci);
       try {
         await updateDoc(doc(db, collectionName, projectId), { comments: updated, updatedTimeText: now, updatedAt: serverTimestamp() });
         setStatus("Comment deleted."); await loadProjects();
-      } catch (e) { alert("ไม่สามารถลบ Comment ได้"); }
+      } catch (e) { alert("Failed to delete comment."); }
     }
 
     async function deleteProject(projectId) {
-      if (!confirm("ต้องการลบ Project นี้ใช่ไหม?")) return;
+      if (!confirm("Delete this project?")) return;
       try {
         await deleteDoc(doc(db, collectionName, projectId));
         setStatus("Project deleted."); await loadProjects();
-      } catch (e) { alert("ไม่สามารถลบ Project ได้"); }
+      } catch (e) { alert("Failed to delete project."); }
     }
 
     // ── Helpers ───────────────────────────────────────────────────────
@@ -650,7 +650,7 @@
     }
 
     function getCurrentTimeText() {
-      return new Date().toLocaleString("th-TH", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit" });
+      return new Date().toLocaleString("en-GB", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", second:"2-digit" });
     }
 
     function setStatus(msg) { document.getElementById("statusMessage").innerText = msg; }
