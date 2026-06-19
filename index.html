@@ -369,13 +369,13 @@
 
     function buildMessage(item, hoursLeft) {
       const dueTxt  = item.dueDateText || "-";
-      const urgency = hoursLeft <= 0  ? "⚠️ เลยกำหนดแล้ว"
-                    : hoursLeft <= 3  ? "🔴 ด่วนมาก!"
-                    : hoursLeft <= 24 ? "🟡 ใกล้ถึงกำหนด"
-                    :                  "📌 แจ้งเตือนล่วงหน้า";
+      const urgency = hoursLeft <= 0  ? "⚠️ Overdue"
+                    : hoursLeft <= 3  ? "🔴 Urgent!"
+                    : hoursLeft <= 24 ? "🟡 Due Soon"
+                    :                  "📌 Advance Notice";
       const timeText = hoursLeft > 0
-        ? `อีก ${Math.round(hoursLeft)} ชม.`
-        : `เลยกำหนดมาแล้ว ${Math.abs(Math.round(hoursLeft))} ชม.`;
+        ? `Another ${Math.round(hoursLeft)} hr.`
+        : `Overdue ${Math.abs(Math.round(hoursLeft))} hr.`;
       const engineers = Array.isArray(item.engineers) && item.engineers.length > 0
         ? item.engineers.join(", ") : (item.engineerName || "-");
 
@@ -387,7 +387,7 @@
       const item = projects.find(p => p.id === projectId);
       if (!item) return;
       const btn = document.getElementById(`alert-btn-${projectId}`);
-      if (btn) { btn.disabled = true; btn.innerText = "กำลังส่ง..."; }
+      if (btn) { btn.disabled = true; btn.innerText = "Sending..."; }
       const hoursLeft = item.dueDate ? (new Date(item.dueDate) - new Date()) / 3600000 : 0;
       try {
         await sendLineMessage(buildMessage(item, hoursLeft));
