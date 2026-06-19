@@ -129,7 +129,18 @@
       </div>
 
       <div class="form-group">
-        <label for="projectName">Project / Task / PM <span class="required">*</span></label>
+        <label for="projectType">Type <span class="required">*</span></label>
+        <select id="projectType">
+          <option value="">-- Select Type --</option>
+          <option value="Project">Project</option>
+          <option value="Task">Task</option>
+          <option value="PM">PM (Preventive Maintenance)</option>
+          <option value="ETC">ETC</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="projectName">Name <span class="required">*</span></label>
         <input type="text" id="projectName" placeholder="e.g. Firewall Replacement / Install Switch / PM Server" />
       </div>
 
@@ -275,6 +286,7 @@
         }
         renderTags();
 
+        document.getElementById("projectType").value       = existingProject.projectType || "";
         document.getElementById("customer").value          = existingProject.customer || "";
         document.getElementById("projectName").value       = existingProject.projectName || "";
         document.getElementById("status").value            = existingProject.status || "";
@@ -301,6 +313,7 @@
       // Flush any partially typed name in the input
       if (engineerInput.value.trim()) addEngineer(engineerInput.value);
 
+      const projectType       = document.getElementById("projectType").value;
       const customer          = document.getElementById("customer").value.trim();
       const projectName       = document.getElementById("projectName").value.trim();
       const status            = document.getElementById("status").value;
@@ -309,8 +322,8 @@
       const notifyBeforeHours = parseInt(document.getElementById("notifyBeforeHours").value) || 24;
       const dueDateValue      = document.getElementById("dueDate").value;
 
-      if (engineers.length === 0 || !customer || !projectName || !status) {
-        alert("Please fill in at least 1 Engineer Name, Customer, Project / Task / PM, and Status.");
+      if (engineers.length === 0 || !projectType || !customer || !projectName || !status) {
+        alert("Please fill in at least 1 Engineer Name, Type, Name, Customer, and Status.");
         return;
       }
 
@@ -332,7 +345,7 @@
           await addDoc(collection(db, collectionName), {
             engineers,        // array — new field
             engineerName,     // string — backward compat
-            customer, projectName, detail, status, comments,
+            projectType, customer, projectName, detail, status, comments,
             dueDate: dueDateISO, dueDateText, notifyBeforeHours,
             notified: false,
             createdTimeText: currentTime, updatedTimeText: currentTime,
@@ -346,7 +359,7 @@
 
           await updateDoc(doc(db, collectionName, projectId), {
             engineers, engineerName,
-            customer, projectName, detail, status,
+            projectType, customer, projectName, detail, status,
             comments: updatedComments,
             dueDate: dueDateISO, dueDateText, notifyBeforeHours,
             notified: false,
