@@ -399,40 +399,24 @@
     let currentFilter = "All";
 
     // ── LINE / Teams Alert ────────────────────────────────────────────
-    async function sendLineMessage(message) {
+    async function sendAlert(item, hoursLeft) {
       const res = await fetch("https://gmc-tracker.muttana-mm.workers.dev", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message })
+        body: JSON.stringify({ item, hoursLeft })
       });
       if (!res.ok) throw new Error(`Alert error ${res.status}`);
       return true;
-    }
-
-    function buildMessage(item, hoursLeft) {
-      const dueTxt  = item.dueDateText || "-";
-      const urgency = hoursLeft <= 0  ? "⚠️ เลยกำหนดแล้ว"
-                    : hoursLeft <= 3  ? "🔴 ด่วนมาก!"
-                    : hoursLeft <= 24 ? "🟡 ใกล้ถึงกำหนด"
-                    :                  "📌 แจ้งเตือนล่วงหน้า";
-      const timeText = hoursLeft > 0
-        ? `อีก ${Math.round(hoursLeft)} ชม.`
-        : `เลยกำหนดมาแล้ว ${Math.abs(Math.round(hoursLeft))} ชม.`;
-      const engineers = Array.isArray(item.engineers) && item.engineers.length > 0
-        ? item.engineers.join(", ") : (item.engineerName || "-");
-
-      const detailLine = item.detail ? `\n📝 Detail: ${item.detail}` : "";
-      return `${urgency}\n📋 Project: ${item.projectName}${detailLine}\n👷 Engineer: ${engineers}\n🏢 Customer: ${item.customer}\n📊 Status: ${item.status}\n📅 Due: ${dueTxt}\n⏰ ${timeText}`;
     }
 
     window.sendAlertForProject = async function(projectId) {
       const item = projects.find(p => p.id === projectId);
       if (!item) return;
       const btn = document.getElementById(`alert-btn-${projectId}`);
-      if (btn) { btn.disabled = true; btn.innerText = "กำลังส่ง..."; }
+      if (btn) { btn.disabled = true; btn.innerText = "Sending..."; }
       const hoursLeft = item.dueDate ? (new Date(item.dueDate) - new Date()) / 3600000 : 0;
       try {
-        await sendLineMessage(buildMessage(item, hoursLeft));
+        await sendAlert(item, hoursLeft);
         alert(`✅ Alert sent successfully!\n${item.projectName}`);
       } catch (err) {
         alert("❌ Failed to send alert:\n" + err.message);
@@ -453,7 +437,7 @@
       let success = 0;
       for (const item of dueItems) {
         const h = (new Date(item.dueDate) - now) / 3600000;
-        try { await sendLineMessage(buildMessage(item, h)); success++; }
+        try { await sendAlert(item, h); success++; }
         catch (e) { console.error("alert failed:", item.projectName, e); }
       }
       setStatus(`Alert sent ${success}/${dueItems.length} successfully`);
@@ -467,7 +451,7 @@
         const h = (new Date(item.dueDate) - now) / 3600000;
         if (h <= (item.notifyBeforeHours || 24) && h > -72) {
           try {
-            await sendLineMessage(buildMessage(item, h));
+            await sendAlert(item, h);
             await updateDoc(doc(db, collectionName, item.id), { notified: true });
           } catch (e) { console.warn("auto-alert failed:", item.projectName); }
         }
