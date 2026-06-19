@@ -218,7 +218,49 @@
     }
     .comment-time   { display: block; color: var(--text-muted); font-size: 11px; margin-top: 3px; }
     .comment-edited { display: block; color: var(--text-sub);   font-size: 11px; margin-top: 2px; }
-    .comment-action-row { display: flex; gap: 5px; margin-top: 5px; }
+    .comment-action-row { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+
+    /* comment done state */
+    .comment-item.done {
+      background: var(--green-soft);
+      border-color: var(--green-mid);
+    }
+    .comment-done-badge {
+      display: inline-block;
+      background: var(--green-soft);
+      color: var(--green-dark);
+      border: 1px solid var(--green-mid);
+      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .comment-done-date {
+      display: block;
+      color: var(--green-dark);
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    /* comment collapse */
+    .comment-list-wrap { }
+    .comment-show-more {
+      font-size: 12px;
+      color: var(--blue);
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px 0;
+      font-weight: 600;
+      text-decoration: underline;
+      display: block;
+      margin-top: 4px;
+    }
+    .comment-show-more:hover { opacity: 0.75; }
+
+    .done-btn { background: var(--green-soft); color: var(--green-dark); border: 1px solid var(--green-mid); padding: 4px 8px; font-size: 11px; }
 
     .comment-input-row { display: flex; gap: 8px; margin-top: 8px; align-items: flex-end; }
     .comment-input-row textarea {
@@ -369,13 +411,13 @@
 
     function buildMessage(item, hoursLeft) {
       const dueTxt  = item.dueDateText || "-";
-      const urgency = hoursLeft <= 0  ? "⚠️ Overdue"
-                    : hoursLeft <= 3  ? "🔴 Urgent!"
-                    : hoursLeft <= 24 ? "🟡 Due Soon"
-                    :                  "📌 Advance Notice";
+      const urgency = hoursLeft <= 0  ? "⚠️ เลยกำหนดแล้ว"
+                    : hoursLeft <= 3  ? "🔴 ด่วนมาก!"
+                    : hoursLeft <= 24 ? "🟡 ใกล้ถึงกำหนด"
+                    :                  "📌 แจ้งเตือนล่วงหน้า";
       const timeText = hoursLeft > 0
-        ? `Another ${Math.round(hoursLeft)} hr.`
-        : `Overdue ${Math.abs(Math.round(hoursLeft))} hr.`;
+        ? `อีก ${Math.round(hoursLeft)} ชม.`
+        : `เลยกำหนดมาแล้ว ${Math.abs(Math.round(hoursLeft))} ชม.`;
       const engineers = Array.isArray(item.engineers) && item.engineers.length > 0
         ? item.engineers.join(", ") : (item.engineerName || "-");
 
@@ -387,7 +429,7 @@
       const item = projects.find(p => p.id === projectId);
       if (!item) return;
       const btn = document.getElementById(`alert-btn-${projectId}`);
-      if (btn) { btn.disabled = true; btn.innerText = "Sending..."; }
+      if (btn) { btn.disabled = true; btn.innerText = "กำลังส่ง..."; }
       const hoursLeft = item.dueDate ? (new Date(item.dueDate) - new Date()) / 3600000 : 0;
       try {
         await sendLineMessage(buildMessage(item, hoursLeft));
@@ -510,18 +552,7 @@
           `<span style="display:inline-block;background:var(--blue-light);color:var(--navy);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600;margin:2px 3px 2px 0">${escapeHtml(n)}</span>`
         ).join("");
 
-        const commentHtml = comments.length === 0
-          ? `<div style="color:var(--text-muted);font-size:13px;padding:4px 0">No comments yet</div>`
-          : comments.map((c, ci) => `
-              <div class="comment-item">
-                ${escapeHtml(c.text || "")}
-                <span class="comment-time">${escapeHtml(c.createdAtText || "")}</span>
-                ${c.editedAtText ? `<span class="comment-edited">Edited: ${escapeHtml(c.editedAtText)}</span>` : ""}
-                <div class="comment-action-row">
-                  <button class="comment-edit-btn" onclick="editComment('${item.id}',${ci})">Edit</button>
-                  <button class="comment-delete-btn" onclick="deleteComment('${item.id}',${ci})">Delete</button>
-                </div>
-              </div>`).join("");
+        const commentHtml = buildCommentHtml(comments, item.id);
 
         const card = document.createElement("div");
         card.className = `project-card ${urg}`;
@@ -557,8 +588,8 @@
 
           <!-- Col 5: Comments -->
           <div>
-            <div class="pc-label">Comments</div>
-            ${commentHtml}
+            <div class="pc-label">Comments <span style="color:var(--text-muted);font-weight:400">(${comments.length})</span></div>
+            <div class="comment-list-wrap" id="clist-${item.id}">${commentHtml}</div>
             <div class="comment-input-row">
               <textarea id="${cid}" placeholder="Add comment..."></textarea>
               <button class="comment-btn" onclick="addComment('${item.id}','${cid}')">+ Add</button>
@@ -596,19 +627,85 @@
       renderList();
     }
 
-    // ── Comments ──────────────────────────────────────────────────────
+    // ── Build comment HTML ────────────────────────────────────────────
+    function buildCommentHtml(comments, projectId) {
+      if (comments.length === 0)
+        return `<div style="color:var(--text-muted);font-size:13px;padding:4px 0">No comments yet</div>`;
+
+      const SHOW = 2; // show first N comments collapsed
+      const items = comments.map((c, ci) => {
+        const isDone    = !!c.doneAt;
+        const doneHtml  = isDone
+          ? `<span class="comment-done-badge">✅ Done</span><span class="comment-done-date">Completed: ${escapeHtml(c.doneAt)}</span>`
+          : "";
+        const editedHtml = c.editedAtText
+          ? `<span class="comment-edited">Edited: ${escapeHtml(c.editedAtText)}</span>`
+          : "";
+
+        return `<div class="comment-item${isDone ? " done" : ""}" id="ci-${projectId}-${ci}">
+          <div style="font-size:13px;line-height:1.5">${escapeHtml(c.text || "")}${doneHtml}</div>
+          <span class="comment-time">Added: ${escapeHtml(c.createdAtText || "")}</span>
+          ${editedHtml}
+          ${isDone ? `<span class="comment-done-date">Completed: ${escapeHtml(c.doneAt)}</span>` : ""}
+          <div class="comment-action-row">
+            ${!isDone ? `<button class="done-btn" onclick="markCommentDone('${projectId}',${ci})">✅ Done</button>` : ""}
+            <button class="comment-edit-btn" onclick="editComment('${projectId}',${ci})">Edit</button>
+            <button class="comment-delete-btn" onclick="deleteComment('${projectId}',${ci})">Delete</button>
+          </div>
+        </div>`;
+      });
+
+      if (comments.length <= SHOW) return items.join("");
+
+      // collapse: show first SHOW, hide rest
+      const visible = items.slice(0, SHOW).join("");
+      const hidden  = items.slice(SHOW).join("");
+      const more    = comments.length - SHOW;
+
+      return `${visible}
+        <div id="more-${projectId}" style="display:none">${hidden}</div>
+        <button class="comment-show-more" id="toggle-${projectId}"
+          onclick="toggleComments('${projectId}')">
+          ▼ Show ${more} more comment(s)
+        </button>`;
+    }
+
+    window.toggleComments = function(projectId) {
+      const more   = document.getElementById(`more-${projectId}`);
+      const btn    = document.getElementById(`toggle-${projectId}`);
+      const hidden = more.style.display === "none";
+      more.style.display = hidden ? "block" : "none";
+      btn.innerText = hidden
+        ? "▲ Show less"
+        : `▼ Show ${more.children.length} more comment(s)`;
+    };
+
+    // ── Comments CRUD ─────────────────────────────────────────────────
     async function addComment(projectId, textareaId) {
       const textarea = document.getElementById(textareaId);
       const text     = textarea.value.trim();
       if (!text) { alert("Please enter a comment first."); return; }
       const item = projects.find(p => p.id === projectId); if (!item) return;
       const now  = getCurrentTimeText();
-      const updated = [...(Array.isArray(item.comments) ? item.comments : []), { text, createdAtText: now }];
+      const updated = [...(Array.isArray(item.comments) ? item.comments : []), {
+        text, createdAtText: now, doneAt: null
+      }];
       try {
         await updateDoc(doc(db, collectionName, projectId), { comments: updated, updatedTimeText: now, updatedAt: serverTimestamp() });
         textarea.value = ""; setStatus("Comment added."); await loadProjects();
       } catch (e) { alert("Failed to add comment."); }
     }
+
+    window.markCommentDone = async function(projectId, ci) {
+      const item = projects.find(p => p.id === projectId); if (!item) return;
+      const comments = Array.isArray(item.comments) ? item.comments : [];
+      const now      = getCurrentTimeText();
+      const updated  = comments.map((c, i) => i === ci ? { ...c, doneAt: now } : c);
+      try {
+        await updateDoc(doc(db, collectionName, projectId), { comments: updated, updatedTimeText: now, updatedAt: serverTimestamp() });
+        setStatus("Comment marked as done."); await loadProjects();
+      } catch (e) { alert("Failed to mark comment as done."); }
+    };
 
     async function editComment(projectId, ci) {
       const item = projects.find(p => p.id === projectId); if (!item) return;
@@ -665,6 +762,7 @@
     window.editComment   = editComment;
     window.deleteComment = deleteComment;
     window.deleteProject = deleteProject;
+    window.buildCommentHtml = buildCommentHtml;
 
     loadProjects();
   </script>
