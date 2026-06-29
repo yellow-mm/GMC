@@ -308,6 +308,60 @@
     .due-badge-ok      { background: var(--green-soft);  color: var(--green-dark);  border: 1px solid var(--green-mid); }
     .due-badge-none    { background: var(--grey-200);    color: var(--grey-500);    border: 1px solid var(--grey-300); }
 
+    /* ── Search & Filter bar ── */
+    .search-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .search-input {
+      flex: 1;
+      min-width: 200px;
+      padding: 8px 14px 8px 36px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      background: var(--grey-50) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a8be' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.099zm-5.242 1.156a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11'/%3E%3C/svg%3E") no-repeat 12px center;
+      color: var(--text-main);
+      transition: border-color 0.13s;
+    }
+    .search-input:focus { outline: none; border-color: var(--blue); background-color: #fff; }
+    .filter-select {
+      padding: 8px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      background: var(--grey-50);
+      color: var(--text-main);
+      cursor: pointer;
+    }
+    .filter-select:focus { outline: none; border-color: var(--blue); }
+    .search-count {
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      align-self: center;
+    }
+    .highlight { background: #fef08a; border-radius: 2px; padding: 0 1px; }
+
+    /* ── Task number badge ── */
+    .task-number {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--grey-500);
+      background: var(--grey-200);
+      border: 1px solid var(--grey-300);
+      border-radius: 5px;
+      padding: 2px 7px;
+      letter-spacing: 0.04em;
+      margin-bottom: 5px;
+    }
+
     /* ── Legend ── */
     .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; margin-bottom: 12px; color: var(--text-sub); }
     .legend-item { display: flex; align-items: center; gap: 5px; }
@@ -380,6 +434,24 @@
         <div class="legend-item"><div class="legend-dot legend-yellow"></div> Due Soon (≤24 hrs)</div>
       </div>
 
+      <div class="search-bar">
+        <input
+          type="text"
+          class="search-input"
+          id="searchInput"
+          placeholder="Search by name, customer, engineer, type..."
+          oninput="onSearch()"
+        />
+        <select class="filter-select" id="typeFilter" onchange="onSearch()">
+          <option value="">All Types</option>
+          <option value="Project">Project</option>
+          <option value="Task">Task</option>
+          <option value="PM">PM</option>
+          <option value="ETC">ETC</option>
+        </select>
+        <span class="search-count" id="searchCount"></span>
+      </div>
+
       <div class="project-list" id="projectList">
         <div class="empty-message">Loading data...</div>
       </div>
@@ -397,6 +469,8 @@
 
     let projects = [];
     let currentFilter = "All";
+    let searchQuery   = "";
+    let typeFilter    = "";
 
     // ── LINE / Teams Alert ────────────────────────────────────────────
     async function sendAlert(item, hoursLeft) {
@@ -465,6 +539,16 @@
         const snap = await getDocs(collection(db, collectionName));
         projects = [];
         snap.forEach(d => projects.push({ id: d.id, ...d.data() }));
+        // Assign #GMC-XXX by creation order (createdAt or Firestore doc order)
+        projects.sort((a, b) => {
+          const aT = a.createdAt?.seconds || 0;
+          const bT = b.createdAt?.seconds || 0;
+          return aT - bT;
+        });
+        projects.forEach((p, i) => {
+          if (!p.taskNumber) p.taskNumber = `GMC-${String(i + 1).padStart(3, "0")}`;
+        });
+        // Re-sort by due date for display
         projects.sort((a, b) => {
           const aH = !!a.dueDate, bH = !!b.dueDate;
           if (aH && bH) return new Date(a.dueDate) - new Date(b.dueDate);
@@ -510,16 +594,39 @@
     }
 
     // ── Render card list ──────────────────────────────────────────────
+    function highlight(text, query) {
+      if (!query) return escapeHtml(text);
+      const escaped = escapeHtml(text);
+      const re = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
+      return escaped.replace(re, '<span class="highlight">$1</span>');
+    }
+
     function renderList() {
       const container = document.getElementById("projectList");
       container.innerHTML = "";
 
-      const list = currentFilter === "All"
+      let list = currentFilter === "All"
         ? projects
         : projects.filter(p => p.status === currentFilter);
 
+      // Apply type filter
+      if (typeFilter) list = list.filter(p => p.projectType === typeFilter);
+
+      // Apply search
+      if (searchQuery) {
+        list = list.filter(p => {
+          const engineers = Array.isArray(p.engineers) ? p.engineers.join(" ") : (p.engineerName || "");
+          return [p.projectName, p.customer, p.detail, p.projectType, engineers, p.taskNumber]
+            .some(v => (v || "").toLowerCase().includes(searchQuery));
+        });
+      }
+
+      // Update count
+      const countEl = document.getElementById("searchCount");
+      if (countEl) countEl.innerText = `${list.length} item(s)`;
+
       if (list.length === 0) {
-        container.innerHTML = `<div class="empty-message">ไม่พบข้อมูลในสถานะนี้</div>`;
+        container.innerHTML = `<div class="empty-message">No results found.</div>`;
         return;
       }
 
@@ -533,7 +640,7 @@
           : (item.engineerName ? item.engineerName.split(",").map(s => s.trim()) : ["-"]);
 
         const engineerHtml = engineers.map(n =>
-          `<span style="display:inline-block;background:var(--blue-light);color:var(--navy);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600;margin:2px 3px 2px 0">${escapeHtml(n)}</span>`
+          `<span style="display:inline-block;background:var(--blue-light);color:var(--navy);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600;margin:2px 3px 2px 0">${highlight(n, searchQuery)}</span>`
         ).join("");
 
         const commentHtml = buildCommentHtml(comments, item.id);
@@ -543,10 +650,12 @@
         card.innerHTML = `
           <!-- Col 1: Project -->
           <div>
-            <div class="pc-label">Type of Work</div>
-            ${item.projectType ? `<span style="display:inline-block;background:var(--blue-light);color:var(--navy);border:1px solid var(--blue-mid);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;margin-bottom:5px">${escapeHtml(item.projectType)}</span>` : ""}
-            <div class="pc-value large">${escapeHtml(item.projectName || "")}</div>
-            ${item.detail ? `<div class="pc-detail">${escapeHtml(item.detail)}</div>` : ""}
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;flex-wrap:wrap">
+              <span class="task-number">#${escapeHtml(item.taskNumber || "")}</span>
+              ${item.projectType ? `<span style="display:inline-block;background:var(--blue-light);color:var(--navy);border:1px solid var(--blue-mid);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700">${highlight(item.projectType, searchQuery)}</span>` : ""}
+            </div>
+            <div class="pc-value large">${highlight(item.projectName || "", searchQuery)}</div>
+            ${item.detail ? `<div class="pc-detail">${highlight(item.detail, searchQuery)}</div>` : ""}
             <div style="margin-top:6px">${getStatusBadge(item.status || "")}</div>
           </div>
 
@@ -555,7 +664,7 @@
             <div class="pc-label">Engineer</div>
             <div class="pc-value" style="margin-bottom:10px">${engineerHtml}</div>
             <div class="pc-label">Customer</div>
-            <div class="pc-value">${escapeHtml(item.customer || "")}</div>
+            <div class="pc-value">${highlight(item.customer || "", searchQuery)}</div>
           </div>
 
           <!-- Col 3: Due Date -->
@@ -599,6 +708,12 @@
         if (el) el.innerText = count;
       });
     }
+
+    window.onSearch = function() {
+      searchQuery = document.getElementById("searchInput").value.toLowerCase().trim();
+      typeFilter  = document.getElementById("typeFilter").value;
+      renderList();
+    };
 
     function setFilter(status) {
       currentFilter = status;

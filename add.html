@@ -203,7 +203,7 @@
   <script type="module">
     import { db, collectionName } from "./firebase.js";
     import {
-      collection, addDoc, getDoc, updateDoc, doc, serverTimestamp
+      collection, addDoc, getDoc, getDocs, updateDoc, doc, serverTimestamp, query, orderBy
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     const urlParams     = new URLSearchParams(window.location.search);
@@ -341,8 +341,14 @@
 
       try {
         if (!projectId) {
+          // Generate task number
+          const allDocs = await getDocs(collection(db, collectionName));
+          const nextNum = allDocs.size + 1;
+          const taskNumber = `GMC-${String(nextNum).padStart(3, "0")}`;
+
           const comments = commentText ? [{ text: commentText, createdAtText: currentTime }] : [];
           await addDoc(collection(db, collectionName), {
+            taskNumber,
             engineers,        // array — new field
             engineerName,     // string — backward compat
             projectType, customer, projectName, detail, status, comments,
